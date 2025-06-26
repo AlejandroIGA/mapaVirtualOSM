@@ -1,0 +1,33 @@
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+
+.app-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.app-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.app-main {
+  flex: 1;   
+  overflow: hidden; 
+  min-height: 0; 
+}

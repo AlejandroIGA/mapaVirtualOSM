@@ -1,0 +1,176 @@
+.header-component {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* Evita que el header se comprima */
+  background-color: #052c65;
+  color: white;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-component img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.header-title p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b3d4fc;
+  opacity: 0.9;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.tracking-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tracking-button.active {
+  background-color: #dc3545;
+  color: white;
+}
+
+.tracking-button.active:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.tracking-button.inactive {
+  background-color: #28a745;
+  color: white;
+}
+
+.tracking-button.inactive:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.tracking-button:disabled {
+  background-color: #6c757d;
+  color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tracking-button:disabled:hover {
+  background-color: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+.tracking-icon {
+  font-size: 1.1rem;
+}
+
+.tracking-text {
+  font-weight: 600;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .header-component {
+    padding: 0.75rem 1rem;
+    /* Mantenemos flex-direction: row para que todo esté en la misma fila */
+  }
+  
+  .header-left {
+    gap: 0.75rem;
+    flex: 1; /* Permitir que ocupe el espacio disponible */
+  }
+  
+  .header-component img {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .header-title h1 {
+    font-size: 1.25rem;
+  }
+  
+  .header-title p {
+    font-size: 0.8rem;
+  }
+  
+  .tracking-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Evitar que el texto del botón se rompa */
+  }
+  
+  .tracking-text {
+    display: inline; /* Mantener texto visible */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-component {
+    padding: 0.5rem 1rem;
+    /* Mantenemos la misma fila incluso en móviles pequeños */
+  }
+  
+  .header-left {
+    gap: 0.5rem;
+    min-width: 0; /* Permitir que se comprima si es necesario */
+  }
+  
+  .header-component img {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0; /* No permitir que la imagen se comprima */
+  }
+  
+  .header-title h1 {
+    font-size: 1.1rem;
+  }
+  
+  .header-title p {
+    font-size: 0.75rem;
+    /* Permitir que el texto se truncue si es muy largo */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .tracking-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    flex-shrink: 0; /* No permitir que el botón se comprima */
+  }
+  
+  .tracking-text {
+    display: inline; /* Mantener texto visible en móviles pequeños */
+  }
+}

@@ -1,0 +1,55 @@
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  /* --- CAMBIO CLAVE PARA RESPONSIVIDAD --- */
+  width: 90%;
+  max-width: 1250px; /* Limita el ancho máximo para que no se estire demasiado en pantallas grandes */
+
+  padding: 8px 15px;
+  border-radius: 25px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  margin: 1rem auto;
+}
+
+.search-bar-container:focus-within {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para el campo de texto (input) */
+.search-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 0;
+  margin-right: 10px;
+  background-color: transparent;
+  color: #333;
+}
+
+.search-input::placeholder {
+  color: #9e9e9e;
+}
+
+/* Estilos para el icono de búsqueda */
+.search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: #9e9e9e;
+  cursor: pointer;
+}
+
+/* Estilos para el SVG dentro del icono */
+.search-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.search-input {
+  font-size: 13px;
+}
