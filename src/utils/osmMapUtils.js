@@ -178,7 +178,7 @@ export const calculateAndShowDirections = async (map, origin, destination) => {
         console.log('🧮 Calculando ruta con OpenRouteService...');
 
         // Importar configuración
-        const { OPENROUTE_CONFIG, buildOpenRouteURL } = await import('../data/buildingsData');
+        const { OPENROUTE_CONFIG, buildOpenRouteURL } = await import('../data/buildingsData.js');
 
         // Verificar si hay API key configurada
         if (!OPENROUTE_CONFIG.apiKey) {
@@ -194,7 +194,7 @@ export const calculateAndShowDirections = async (map, origin, destination) => {
         const response = await fetch(url, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json',
+                'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
                 'Content-Type': 'application/json'
             }
         });
