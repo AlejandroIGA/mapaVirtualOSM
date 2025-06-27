@@ -1,9 +1,10 @@
-// components/OpenStreetMapComponent.jsx
+// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Versión simplificada
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./OpenStreetMapComponent.css";
-import StaffModal from "../StaffModal/StaffModal"; // ✅ IMPORTAR StaffModal
+import StaffModal from "../StaffModal/StaffModal";
+import { routeManager, loadPredefinedRoutes } from "../../utils/geoJsonRouteManager";
 import {
   BUILDINGS_DATA,
   MAP_CONFIG,
@@ -32,9 +33,9 @@ const OpenStreetMapComponent = () => {
   const accuracyCircleRef = useRef(null);
   const buildingMarkersRef = useRef([]);
   const watchIdRef = useRef(null);
-  const currentRouteRef = useRef(null); // Para manejar rutas
+  const currentRouteRef = useRef(null);
 
-  // Estados
+  // Estados principales
   const [userLocation, setUserLocation] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -46,11 +47,48 @@ const OpenStreetMapComponent = () => {
     checking: true,
   });
 
-  // ✅ Estados para StaffModal
+  // Estados para StaffModal
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [staffModalBuilding, setStaffModalBuilding] = useState(null);
 
-  // Verificar estado de geolocalización al cargar
+  // Estado interno para rutas (sin mostrar al usuario)
+  const [routesLoaded, setRoutesLoaded] = useState(false);
+
+  // Carga automática y silenciosa de rutas al inicializar
+  useEffect(() => {
+    const initializeRoutes = async () => {
+      try {
+        console.log('🚀 Cargando rutas del sistema...');
+        const success = await loadPredefinedRoutes();
+        
+        if (success) {
+          setRoutesLoaded(true);
+          console.log('✅ Rutas del sistema cargadas');
+          
+          // Mostrar rutas en el mapa si está listo
+          if (mapInstance.current) {
+            routeManager.displayRoutesOnMap(mapInstance.current, {
+              color: '#FF6B35',
+              weight: 3,
+              opacity: 0.6,
+              dashArray: '8, 4'
+            });
+          }
+        } else {
+          console.log('⚠️ No se encontraron archivos de rutas del sistema');
+        }
+      } catch (error) {
+        console.error('❌ Error cargando rutas del sistema:', error);
+        // No mostrar error al usuario, las rutas son opcionales
+      }
+    };
+
+    // Cargar rutas después de un pequeño delay
+    const timer = setTimeout(initializeRoutes, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Verificar estado de geolocalización
   useEffect(() => {
     const checkLocationAvailability = async () => {
       try {
@@ -74,32 +112,27 @@ const OpenStreetMapComponent = () => {
     checkLocationAvailability();
   }, []);
 
-  // ✅ Configurar funciones globales para popups
+  // Configurar funciones globales para popups
   useEffect(() => {
-    // Función global para abrir StaffModal
     window.openStaffModalById = (buildingId) => {
-      console.log("🔍 Abriendo modal para edificio ID:", buildingId);
       const building = BUILDINGS_DATA.find((b) => String(b.id) === String(buildingId));
       
       if (building) {
         setStaffModalBuilding(building);
         setStaffModalOpen(true);
-        console.log("✅ Modal abierto para:", building.name);
       } else {
-        console.warn("⚠️ Edificio no encontrado:", buildingId);
         alert("No se encontró información del edificio");
       }
     };
 
-    // Función global para direcciones
     window.getDirectionsOSM = async (buildingId, destLat, destLng) => {
-      console.log("🗺️ Solicitando direcciones para edificio:", buildingId);
-      await handleGetDirections({ id: buildingId, position: { lat: destLat, lng: destLng } });
+      const building = BUILDINGS_DATA.find(b => String(b.id) === String(buildingId));
+      if (building) {
+        await handleGetDirections(building);
+      }
     };
 
-    // Función global para modal de imágenes
     window.openImageModal = function (imageUrl) {
-      console.log("🖼️ Abriendo modal de imagen:", imageUrl);
       const modalHtml = `
         <div id="image-modal-overlay" style="
           position: fixed;
@@ -142,7 +175,6 @@ const OpenStreetMapComponent = () => {
       if (modal) modal.remove();
     };
 
-    // Cleanup
     return () => {
       delete window.openStaffModalById;
       delete window.getDirectionsOSM;
@@ -151,13 +183,43 @@ const OpenStreetMapComponent = () => {
     };
   }, []);
 
+  // Funciones para crear rutas
+  const createRouteFromGeoJSON = async (customRoute) => {
+    const routeLine = L.polyline(customRoute.coordinates, {
+      color: '#4285F4',
+      weight: 4,
+      opacity: 0.9,
+      dashArray: null
+    }).addTo(mapInstance.current);
+
+    mapInstance.current.fitBounds(routeLine.getBounds(), { padding: [20, 20] });
+
+    const distanceKm = (customRoute.distance / 1000).toFixed(2);
+    const durationMin = Math.round(customRoute.distance / 1000 * 12);
+
+    return {
+      distance: `${distanceKm} km`,
+      duration: `${durationMin} min`,
+      routeLine: routeLine,
+      source: 'Rutas del campus',
+      note: `Usando senderos del campus`
+    };
+  };
+
+  const calculateWithOpenRouteService = async (currentUserLocation, building) => {
+    return await calculateAndShowDirections(
+      mapInstance.current,
+      { lat: currentUserLocation.lat, lng: currentUserLocation.lng },
+      { lat: building.position.lat, lng: building.position.lng }
+    );
+  };
+
   // Inicializar mapa
   useEffect(() => {
     const initializeMap = () => {
       try {
-        console.log("🗺️ Inicializando mapa OpenStreetMap...");
+        console.log("🗺️ Inicializando mapa...");
 
-        // Crear mapa
         const map = L.map(mapRef.current, {
           center: MAP_CONFIG.center,
           zoom: MAP_CONFIG.zoom,
@@ -165,12 +227,10 @@ const OpenStreetMapComponent = () => {
           attributionControl: true,
         });
 
-        // ✅ Agregar capa de tiles OSM específicamente
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
           minZoom: 10,
-          // Configuraciones adicionales para mejor rendimiento
           updateWhenIdle: false,
           updateWhenZooming: false,
           keepBuffer: 2
@@ -179,10 +239,9 @@ const OpenStreetMapComponent = () => {
         mapInstance.current = map;
         setIsMapReady(true);
 
-        // Crear marcadores de edificios
         createBuildingMarkers(map);
 
-        console.log("✅ Mapa OpenStreetMap con tiles OSM inicializado correctamente");
+        console.log("✅ Mapa inicializado correctamente");
       } catch (err) {
         console.error("❌ Error inicializando mapa:", err);
         setError(`Error inicializando mapa: ${err.message}`);
@@ -193,7 +252,6 @@ const OpenStreetMapComponent = () => {
       initializeMap();
     }
 
-    // Cleanup
     return () => {
       if (mapInstance.current) {
         mapInstance.current.remove();
@@ -202,12 +260,23 @@ const OpenStreetMapComponent = () => {
     };
   }, []);
 
+  // Mostrar rutas cuando el mapa esté listo
+  useEffect(() => {
+    if (mapInstance.current && routesLoaded) {
+      routeManager.displayRoutesOnMap(mapInstance.current, {
+        color: '#FF6B35',
+        weight: 3,
+        opacity: 0.6,
+        dashArray: '8, 4'
+      });
+    }
+  }, [isMapReady, routesLoaded]);
+
   // Crear marcadores de edificios
   const createBuildingMarkers = (map) => {
     console.log("🏢 Creando marcadores de edificios...");
 
     BUILDINGS_DATA.forEach((building) => {
-      // Crear icono personalizado
       const buildingIcon = L.icon({
         iconUrl: MackersImage,
         iconSize: [28, 28],
@@ -215,22 +284,18 @@ const OpenStreetMapComponent = () => {
         popupAnchor: [0, -14],
       });
 
-      // Crear marcador
       const marker = L.marker([building.position.lat, building.position.lng], {
         icon: buildingIcon,
         title: building.name,
       }).addTo(map);
 
-      // Crear popup con contenido
       const popupContent = createBuildingPopupContent(building);
       marker.bindPopup(popupContent, {
         maxWidth: 300,
         className: 'custom-popup'
       });
 
-      // Evento click
       marker.on('click', () => {
-        console.log("🏢 Click en edificio:", building.name);
         setSelectedBuilding(building);
       });
 
@@ -242,24 +307,19 @@ const OpenStreetMapComponent = () => {
 
   // Manejar actualización de ubicación
   const handleLocationUpdate = (location) => {
-    console.log("📍 Actualizando ubicación:", location);
     setUserLocation(location);
 
     if (mapInstance.current) {
-      // Remover marcador anterior
       if (userMarkerRef.current) {
         mapInstance.current.removeLayer(userMarkerRef.current);
       }
 
-      // Remover círculo anterior
       if (accuracyCircleRef.current) {
         mapInstance.current.removeLayer(accuracyCircleRef.current);
       }
 
-      // Crear nuevo marcador de usuario
       userMarkerRef.current = createUserMarker(mapInstance.current, location, location.accuracy);
 
-      // Crear círculo de precisión
       if (location.accuracy) {
         accuracyCircleRef.current = createAccuracyCircle(mapInstance.current, location, location.accuracy);
       }
@@ -269,7 +329,6 @@ const OpenStreetMapComponent = () => {
   // Toggle tracking
   const toggleTracking = async () => {
     if (isTracking) {
-      // Detener tracking
       if (watchIdRef.current) {
         navigator.geolocation.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
@@ -277,13 +336,11 @@ const OpenStreetMapComponent = () => {
       setIsTracking(false);
       console.log("🛑 Seguimiento detenido");
     } else {
-      // Iniciar tracking
       setError(null);
       
       try {
         console.log("🎯 Iniciando seguimiento...");
 
-        // Obtener ubicación inicial
         const location = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -308,12 +365,10 @@ const OpenStreetMapComponent = () => {
 
         handleLocationUpdate(location);
 
-        // Centrar mapa en ubicación
         if (mapInstance.current) {
           mapInstance.current.setView([location.lat, location.lng], 19);
         }
 
-        // Iniciar seguimiento continuo
         const watchId = navigator.geolocation.watchPosition(
           (position) => {
             const newLocation = {
@@ -326,7 +381,6 @@ const OpenStreetMapComponent = () => {
           },
           (error) => {
             console.error("Error en seguimiento:", error);
-            // No detener el tracking por errores menores
           },
           LOCATION_OPTIONS
         );
@@ -342,17 +396,14 @@ const OpenStreetMapComponent = () => {
     }
   };
 
-  // ✅ Manejar direcciones con OpenRouteService
+  // Manejar direcciones con prioridad de rutas GeoJSON
   const handleGetDirections = async (building) => {
     const buildingName = building.name || `Edificio ${building.id}`;
-    console.log("🗺️ Solicitando direcciones para:", buildingName);
+    console.log("🗺️ Calculando direcciones a:", buildingName);
 
     let currentUserLocation = userLocation;
 
-    // Si no tenemos ubicación, intentar obtenerla
     if (!currentUserLocation) {
-      console.log("🔄 Obteniendo ubicación actual para direcciones...");
-      
       try {
         currentUserLocation = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
@@ -365,9 +416,7 @@ const OpenStreetMapComponent = () => {
               };
               resolve(location);
             },
-            (error) => {
-              reject(error);
-            },
+            (error) => reject(error),
             {
               enableHighAccuracy: false,
               timeout: 5000,
@@ -377,63 +426,62 @@ const OpenStreetMapComponent = () => {
         });
 
         handleLocationUpdate(currentUserLocation);
-        console.log("✅ Ubicación obtenida para direcciones");
-
       } catch (err) {
         console.error("❌ No se pudo obtener ubicación:", err);
-        
-        let errorMessage = "No se pudo obtener tu ubicación para calcular la ruta.";
-        
-        if (err.code === 1) {
-          errorMessage = "Permisos de ubicación denegados.\n\nPara obtener direcciones, permite el acceso a la ubicación en tu navegador.";
-        } else if (err.code === 2) {
-          errorMessage = "No se pudo determinar tu ubicación.\n\nVerifica que tengas GPS activado.";
-        } else if (err.code === 3) {
-          errorMessage = "La búsqueda de ubicación tardó demasiado.\n\nInténtalo de nuevo.";
-        }
-
-        alert(errorMessage);
+        alert("No se pudo obtener tu ubicación para calcular la ruta.");
         return;
       }
     }
 
-    // Calcular direcciones con OpenRouteService
     try {
-      console.log("🧮 Calculando ruta con OpenRouteService...");
-
-      // Limpiar rutas anteriores
       if (currentRouteRef.current) {
         mapInstance.current.removeLayer(currentRouteRef.current);
       }
 
-      const result = await calculateAndShowDirections(
-        mapInstance.current,
-        { lat: currentUserLocation.lat, lng: currentUserLocation.lng },
-        { lat: building.position.lat, lng: building.position.lng }
-      );
+      let result;
 
-      // Guardar referencia de la ruta para limpiarla después
+      // Intentar usar rutas GeoJSON primero
+      if (routesLoaded && routeManager.routeSegments.length > 0) {
+        console.log("🛤️ Calculando ruta usando senderos del campus...");
+        
+        const customRoute = routeManager.calculateCustomRoute(
+          currentUserLocation.lat,
+          currentUserLocation.lng,
+          building.position.lat,
+          building.position.lng
+        );
+
+        if (customRoute) {
+          console.log("✅ Ruta encontrada usando senderos del campus");
+          result = await createRouteFromGeoJSON(customRoute);
+        } else {
+          console.log("⚠️ No se encontró ruta por senderos, usando ruta directa...");
+          result = await calculateWithOpenRouteService(currentUserLocation, building);
+        }
+      } else {
+        // Usar OpenRouteService o ruta directa
+        result = await calculateWithOpenRouteService(currentUserLocation, building);
+      }
+
       currentRouteRef.current = result.routeLine;
 
-      // Mostrar información de la ruta
       const routeInfo = 
         `🎯 Ruta a ${buildingName}\n\n` +
         `📏 Distancia: ${result.distance}\n` +
         `⏱️ Tiempo estimado: ${result.duration}\n` +
         `🚶‍♂️ Modo: Caminando\n` +
-        `🌐 Fuente: ${result.source}` +
-        (result.note ? `\n📝 ${result.note}` : '');
+        `🌐 Fuente: ${result.source}`;
 
       alert(routeInfo);
       console.log("✅ Ruta calculada exitosamente");
 
     } catch (err) {
       console.error("❌ Error calculando ruta:", err);
-      alert(`Error calculando la ruta: ${err.message}\n\nVerifica tu conexión a internet e inténtalo de nuevo.`);
+      alert(`Error calculando la ruta: ${err.message}`);
     }
   };
 
-  // Cleanup al desmontar
+  // Cleanup
   useEffect(() => {
     return () => {
       if (watchIdRef.current && navigator.geolocation) {
@@ -458,10 +506,10 @@ const OpenStreetMapComponent = () => {
         </div>
       )}
 
-      {/* Panel de controles */}
+      {/* Panel de controles simplificado */}
       <div className="controls-section">
         <div className="controls-header">
-          <h2 className="main-title">Sistema de Navegación UTEQ - OpenStreetMap</h2>
+          <h2 className="main-title">Sistema de Navegación UTEQ</h2>
           <div>
             <button
               onClick={toggleTracking}
@@ -478,31 +526,12 @@ const OpenStreetMapComponent = () => {
             ? `📍 Ubicación detectada (±${Math.round(userLocation.accuracy)}m) - Haz clic en un edificio para obtener direcciones`
             : "📍 Haz clic en 'Iniciar Seguimiento' para detectar tu ubicación y calcular rutas"}
         </p>
-
-        <div className="status-grid">
-          <div className="status-item">
-            <div className={`status-dot ${isMapReady ? "ready" : "inactive"}`}></div>
-            <span>Mapa: {isMapReady ? "Listo" : "Cargando..."}</span>
-          </div>
-          <div className="status-item">
-            <div className={`status-dot ${locationStatus.available ? "ready" : "error"}`}></div>
-            <span>GPS: {locationStatus.available ? "Disponible" : "No disponible"}</span>
-          </div>
-          <div className="status-item">
-            <div className={`status-dot ${isTracking ? "ready" : "inactive"}`}></div>
-            <span>Seguimiento: {isTracking ? "Activo" : "Inactivo"}</span>
-          </div>
-          <div className="status-item">
-            <div className={`status-dot ${userLocation ? "ready" : "warning"}`}></div>
-            <span>Ubicación: {userLocation ? "Detectada" : "Sin detectar"}</span>
-          </div>
-        </div>
       </div>
 
       {/* Mapa */}
       <div ref={mapRef} className="map-container" />
 
-      {/* ✅ StaffModal */}
+      {/* StaffModal */}
       <StaffModal
         isOpen={staffModalOpen}
         onClose={() => setStaffModalOpen(false)}
