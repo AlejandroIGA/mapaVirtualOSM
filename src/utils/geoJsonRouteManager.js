@@ -1,4 +1,4 @@
-// utils/geoJsonRouteManager.js - Versión mejorada
+// utils/geoJsonRouteManager.js - Versión limpia
 import L from 'leaflet';
 
 export class GeoJSONRouteManager {
@@ -6,17 +6,12 @@ export class GeoJSONRouteManager {
         this.routeData = null;
         this.routeLayer = null;
         this.routeSegments = [];
-        this.nodeNetwork = new Map(); // Red de nodos conectados
-        this.spatialIndex = []; // Índice espacial para búsqueda rápida
+        this.nodeNetwork = new Map();
+        this.spatialIndex = [];
     }
 
-    /**
-     * 🔄 Carga automática de múltiples archivos GeoJSON desde una carpeta
-     */
     async loadRoutesFromFolder(geoJsonFiles) {
         try {
-            console.log('📂 Cargando rutas desde múltiples archivos...');
-
             const allFeatures = [];
 
             for (const file of geoJsonFiles) {
@@ -24,47 +19,35 @@ export class GeoJSONRouteManager {
                     let geoJsonData;
 
                     if (typeof file === 'string') {
-                        // Cargar desde URL
                         const response = await fetch(file);
-                        if (!response.ok) {
-                            console.warn(`⚠️ No se pudo cargar ${file}`);
-                            continue;
-                        }
+                        if (!response.ok) continue;
                         geoJsonData = await response.json();
                     } else {
-                        // Archivo local
                         geoJsonData = file;
                     }
 
                     if (geoJsonData.features) {
                         allFeatures.push(...geoJsonData.features);
-                        console.log(`✅ Cargado: ${geoJsonData.features.length} rutas de ${file.name || file}`);
                     }
                 } catch (error) {
-                    console.warn(`⚠️ Error cargando archivo:`, error);
+                    console.warn(`Error cargando archivo:`, error);
                 }
             }
 
-            // Crear un GeoJSON combinado
             this.routeData = {
                 type: "FeatureCollection",
                 features: allFeatures
             };
 
             this.processAdvancedRouteNetwork();
-
-            console.log(`✅ Sistema de rutas cargado: ${this.routeSegments.length} segmentos total`);
             return true;
 
         } catch (error) {
-            console.error('❌ Error cargando rutas:', error);
+            console.error('Error cargando rutas:', error);
             throw error;
         }
     }
 
-    /**
-     * 🧠 Procesamiento avanzado de la red de rutas con algoritmo mejorado
-     */
     processAdvancedRouteNetwork() {
         if (!this.routeData || !this.routeData.features) {
             throw new Error('Datos GeoJSON inválidos');
@@ -74,7 +57,6 @@ export class GeoJSONRouteManager {
         this.nodeNetwork.clear();
         this.spatialIndex = [];
 
-        // Procesar cada segmento
         this.routeData.features.forEach((feature, index) => {
             if (feature.geometry && feature.geometry.type === 'LineString') {
                 const coordinates = feature.geometry.coordinates;
@@ -96,24 +78,14 @@ export class GeoJSONRouteManager {
             }
         });
 
-        // Conectar nodos cercanos
         this.connectNearbyNodes();
-
-        console.log(`🔗 Red procesada: ${this.routeSegments.length} segmentos, ${this.nodeNetwork.size} nodos`);
     }
 
-    /**
-     * 📍 Crea una clave única para un nodo basada en coordenadas
-     */
-    createNodeKey(coord, precision = 6) {
+    createNodeKey(coord, precision = 5) {
         return `${coord[0].toFixed(precision)},${coord[1].toFixed(precision)}`;
     }
 
-    /**
-     * 🗺️ Agrega segmento al índice espacial para búsquedas rápidas
-     */
     addSegmentToSpatialIndex(segment) {
-        // Calcular bounding box del segmento
         const lats = segment.coordinates.map(c => c[0]);
         const lngs = segment.coordinates.map(c => c[1]);
 
@@ -128,14 +100,10 @@ export class GeoJSONRouteManager {
         this.spatialIndex.push(bbox);
     }
 
-    /**
-     * 🔗 Agrega segmento a la red de nodos
-     */
     addSegmentToNetwork(segment) {
         const startKey = segment.startNode;
         const endKey = segment.endNode;
 
-        // Inicializar nodos si no existen
         if (!this.nodeNetwork.has(startKey)) {
             this.nodeNetwork.set(startKey, {
                 coordinates: segment.coordinates[0],
@@ -150,7 +118,6 @@ export class GeoJSONRouteManager {
             });
         }
 
-        // Agregar conexiones bidireccionales
         this.nodeNetwork.get(startKey).connections.push({
             to: endKey,
             segment: segment,
@@ -166,11 +133,8 @@ export class GeoJSONRouteManager {
         });
     }
 
-    /**
-     * 🔗 Conecta nodos que están muy cerca pero no directamente conectados
-     */
     connectNearbyNodes() {
-        const tolerance = 20; // 20 metros de tolerancia
+        const tolerance = 50;
         const nodes = Array.from(this.nodeNetwork.entries());
 
         for (let i = 0; i < nodes.length; i++) {
@@ -184,13 +148,12 @@ export class GeoJSONRouteManager {
                 );
 
                 if (distance <= tolerance) {
-                    // Crear conexión virtual entre nodos cercanos
                     const alreadyConnected = nodeA.connections.some(conn => conn.to === keyB);
 
                     if (!alreadyConnected) {
                         nodeA.connections.push({
                             to: keyB,
-                            segment: null, // Conexión virtual
+                            segment: null,
                             distance: distance,
                             direction: 'virtual'
                         });
@@ -201,31 +164,24 @@ export class GeoJSONRouteManager {
                             distance: distance,
                             direction: 'virtual'
                         });
-
-                        console.log(`🔗 Conectados nodos cercanos: ${distance.toFixed(1)}m`);
                     }
                 }
             }
         }
     }
 
-    /**
-     * 🎯 Búsqueda espacial optimizada para encontrar segmentos cercanos
-     */
-    findNearestRoutePointOptimized(targetLat, targetLng, maxDistance = 150) {
+    findNearestRoutePointOptimized(targetLat, targetLng, maxDistance = 200) {
         let nearestPoint = null;
         let minDistance = maxDistance;
 
-        // Filtrar segmentos por bounding box primero
+        const margin = 0.003;
         const candidateSegments = this.spatialIndex.filter(bbox => {
-            const margin = 0.002; // ~200m en grados
             return targetLat >= (bbox.minLat - margin) &&
                 targetLat <= (bbox.maxLat + margin) &&
                 targetLng >= (bbox.minLng - margin) &&
                 targetLng <= (bbox.maxLng + margin);
         }).map(bbox => bbox.segment);
 
-        // Buscar el punto más cercano en los segmentos candidatos
         for (const segment of candidateSegments) {
             const closestPoint = this.findClosestPointOnSegment(
                 segment.coordinates,
@@ -247,9 +203,6 @@ export class GeoJSONRouteManager {
         return nearestPoint;
     }
 
-    /**
-     * 📐 Encuentra el punto más cercano en un segmento de línea
-     */
     findClosestPointOnSegment(coordinates, targetPoint) {
         let minDistance = Infinity;
         let closestPoint = null;
@@ -278,9 +231,6 @@ export class GeoJSONRouteManager {
         };
     }
 
-    /**
-     * 📏 Calcula la distancia más corta de un punto a una línea
-     */
     pointToLineDistance(point, lineStart, lineEnd) {
         const [px, py] = point;
         const [x1, y1] = lineStart;
@@ -322,41 +272,52 @@ export class GeoJSONRouteManager {
         };
     }
 
-    /**
-     * 🗺️ Algoritmo mejorado de cálculo de rutas usando Dijkstra
-     */
     calculateCustomRoute(originLat, originLng, destLat, destLng) {
-        console.log('🗺️ Calculando ruta con algoritmo mejorado...');
-
-        // Encontrar puntos de acceso más cercanos
-        const nearestOrigin = this.findNearestRoutePointOptimized(originLat, originLng, 200);
-        const nearestDest = this.findNearestRoutePointOptimized(destLat, destLng, 200);
+        const nearestOrigin = this.findNearestRoutePointOptimized(originLat, originLng, 300);
+        const nearestDest = this.findNearestRoutePointOptimized(destLat, destLng, 300);
 
         if (!nearestOrigin || !nearestDest) {
-            console.warn('⚠️ No se encontraron puntos de acceso a la red de rutas');
             return null;
         }
 
-        console.log(`🎯 Puntos de acceso encontrados: ${nearestOrigin.distance.toFixed(1)}m y ${nearestDest.distance.toFixed(1)}m`);
+        // Si ambos puntos están en el mismo segmento
+        if (nearestOrigin.segment.id === nearestDest.segment.id) {
+            const routeCoordinates = [
+                [originLat, originLng],
+                nearestOrigin.coordinates,
+                nearestDest.coordinates,
+                [destLat, destLng]
+            ];
 
-        // Encontrar nodos más cercanos a los puntos de acceso
+            const totalDistance = nearestOrigin.distance + nearestDest.distance +
+                this.calculateDistance(
+                    nearestOrigin.coordinates[0], nearestOrigin.coordinates[1],
+                    nearestDest.coordinates[0], nearestDest.coordinates[1]
+                );
+
+            return {
+                coordinates: routeCoordinates,
+                distance: totalDistance,
+                segments: [nearestOrigin.segment],
+                useCustomRoutes: true,
+                accessDistance: nearestOrigin.distance + nearestDest.distance,
+                routeDistance: totalDistance - (nearestOrigin.distance + nearestDest.distance)
+            };
+        }
+
         const originNode = this.findNearestNode(nearestOrigin.coordinates);
         const destNode = this.findNearestNode(nearestDest.coordinates);
 
         if (!originNode || !destNode) {
-            console.warn('⚠️ No se encontraron nodos en la red');
             return null;
         }
 
-        // Usar Dijkstra para encontrar la mejor ruta
         const path = this.dijkstraPath(originNode.key, destNode.key);
 
         if (!path || path.length === 0) {
-            console.warn('⚠️ No se encontró camino en la red de rutas');
             return null;
         }
 
-        // Construir las coordenadas completas de la ruta
         const routeCoordinates = this.buildCompleteRoute(
             [originLat, originLng],
             nearestOrigin,
@@ -366,8 +327,6 @@ export class GeoJSONRouteManager {
         );
 
         const totalDistance = nearestOrigin.distance + path.distance + nearestDest.distance;
-
-        console.log(`✅ Ruta calculada: ${(totalDistance / 1000).toFixed(2)}km usando ${path.segments.length} segmentos`);
 
         return {
             coordinates: routeCoordinates,
@@ -379,9 +338,6 @@ export class GeoJSONRouteManager {
         };
     }
 
-    /**
-     * 🔍 Encuentra el nodo más cercano a unas coordenadas
-     */
     findNearestNode(coordinates) {
         let nearestNode = null;
         let minDistance = Infinity;
@@ -401,15 +357,11 @@ export class GeoJSONRouteManager {
         return nearestNode;
     }
 
-    /**
-     * 🚀 Algoritmo de Dijkstra para encontrar la ruta más corta
-     */
     dijkstraPath(startKey, endKey) {
         const distances = new Map();
         const previous = new Map();
         const unvisited = new Set();
 
-        // Inicializar distancias
         for (const nodeKey of this.nodeNetwork.keys()) {
             distances.set(nodeKey, Infinity);
             unvisited.add(nodeKey);
@@ -417,7 +369,6 @@ export class GeoJSONRouteManager {
         distances.set(startKey, 0);
 
         while (unvisited.size > 0) {
-            // Encontrar nodo no visitado con menor distancia
             let currentNode = null;
             let minDistance = Infinity;
 
@@ -429,17 +380,15 @@ export class GeoJSONRouteManager {
             }
 
             if (currentNode === null || minDistance === Infinity) {
-                break; // No hay más nodos alcanzables
+                break;
             }
 
             unvisited.delete(currentNode);
 
-            // Si llegamos al destino, construir el camino
             if (currentNode === endKey) {
                 return this.reconstructPath(previous, startKey, endKey, distances.get(endKey));
             }
 
-            // Examinar vecinos
             const node = this.nodeNetwork.get(currentNode);
             for (const connection of node.connections) {
                 if (!unvisited.has(connection.to)) continue;
@@ -452,12 +401,9 @@ export class GeoJSONRouteManager {
             }
         }
 
-        return null; // No se encontró camino
+        return null;
     }
 
-    /**
-     * 🔄 Reconstruye el camino desde el resultado de Dijkstra
-     */
     reconstructPath(previous, startKey, endKey, totalDistance) {
         const path = [];
         const segments = [];
@@ -481,54 +427,40 @@ export class GeoJSONRouteManager {
         };
     }
 
-    /**
-     * 🛣️ Construye las coordenadas completas de la ruta
-     */
     buildCompleteRoute(start, originAccess, path, destAccess, end) {
         const coordinates = [];
 
-        // 1. Punto de inicio
         coordinates.push(start);
 
-        // 2. Línea de acceso al origen
-        if (originAccess.distance > 5) { // Solo si está a más de 5m
+        if (originAccess.distance > 5) {
             coordinates.push(originAccess.coordinates);
         }
 
-        // 3. Recorrer los segmentos del camino
         for (let i = 0; i < path.segments.length; i++) {
             const segment = path.segments[i];
 
             if (i === 0) {
-                // Primer segmento: usar desde el punto de acceso
                 const startIdx = this.findClosestCoordinateIndex(segment.coordinates, originAccess.coordinates);
                 const segmentCoords = segment.coordinates.slice(startIdx);
                 coordinates.push(...segmentCoords);
             } else if (i === path.segments.length - 1) {
-                // Último segmento: usar hasta el punto de acceso
                 const endIdx = this.findClosestCoordinateIndex(segment.coordinates, destAccess.coordinates);
                 const segmentCoords = segment.coordinates.slice(0, endIdx + 1);
                 coordinates.push(...segmentCoords);
             } else {
-                // Segmentos intermedios: usar completos
                 coordinates.push(...segment.coordinates);
             }
         }
 
-        // 4. Línea de acceso al destino
-        if (destAccess.distance > 5) { // Solo si está a más de 5m
+        if (destAccess.distance > 5) {
             coordinates.push(destAccess.coordinates);
         }
 
-        // 5. Punto final
         coordinates.push(end);
 
         return coordinates;
     }
 
-    /**
-     * 📏 Calcula la longitud de un segmento
-     */
     calculateSegmentLength(coordinates) {
         let length = 0;
         for (let i = 1; i < coordinates.length; i++) {
@@ -540,11 +472,8 @@ export class GeoJSONRouteManager {
         return length;
     }
 
-    /**
-     * 🌍 Calcula distancia entre dos puntos (Haversine)
-     */
     calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000; // Radio de la Tierra en metros
+        const R = 6371000;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -554,9 +483,6 @@ export class GeoJSONRouteManager {
         return R * c;
     }
 
-    /**
-     * 🔍 Encuentra el índice de la coordenada más cercana
-     */
     findClosestCoordinateIndex(coordinates, targetCoord) {
         let minDistance = Infinity;
         let closestIndex = 0;
@@ -575,9 +501,6 @@ export class GeoJSONRouteManager {
         return closestIndex;
     }
 
-    /**
-     * 🗺️ Muestra las rutas en el mapa
-     */
     displayRoutesOnMap(map, style = {}) {
         if (!this.routeData) return null;
 
@@ -609,22 +532,15 @@ export class GeoJSONRouteManager {
             }
         }).addTo(map);
 
-        console.log('🗺️ Rutas mostradas en el mapa');
         return this.routeLayer;
     }
 
-    /**
-     * 🙈 Oculta las rutas del mapa
-     */
     hideRoutesFromMap(map) {
         if (this.routeLayer) {
             map.removeLayer(this.routeLayer);
         }
     }
 
-    /**
-     * 📊 Obtiene estadísticas de las rutas
-     */
     getRouteStats() {
         if (!this.routeSegments.length) return null;
 
@@ -639,9 +555,6 @@ export class GeoJSONRouteManager {
         };
     }
 
-    /**
-     * 🔗 Cuenta componentes conectados en la red
-     */
     countConnectedComponents() {
         const visited = new Set();
         let components = 0;
@@ -656,9 +569,6 @@ export class GeoJSONRouteManager {
         return components;
     }
 
-    /**
-     * 🔍 DFS para contar componentes conectados
-     */
     dfsVisit(nodeKey, visited) {
         visited.add(nodeKey);
         const node = this.nodeNetwork.get(nodeKey);
@@ -671,12 +581,8 @@ export class GeoJSONRouteManager {
     }
 }
 
-// 🏭 Funciones para carga automática desde carpeta
 export const routeManager = new GeoJSONRouteManager();
 
-/**
- * 📁 Carga automática de archivos GeoJSON desde rutas predefinidas
- */
 export const loadPredefinedRoutes = async () => {
     const routeFiles = [
         '/geojson/dataTest.geojson',
@@ -690,10 +596,9 @@ export const loadPredefinedRoutes = async () => {
             if (response.ok) {
                 const data = await response.json();
                 availableFiles.push(data);
-                console.log(`✅ Cargado: ${file}`);
             }
         } catch (error) {
-            console.log(`⚠️ No encontrado: ${file}`);
+            // Archivo no encontrado, continuar
         }
     }
 
@@ -705,9 +610,6 @@ export const loadPredefinedRoutes = async () => {
     return false;
 };
 
-/**
- * 📂 Carga GeoJSON desde archivos File
- */
 export const loadGeoJSONFromFile = async (file) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();

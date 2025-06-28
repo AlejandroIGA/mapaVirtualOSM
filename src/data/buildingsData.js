@@ -20,7 +20,7 @@ export const BUILDINGS_DATA = [
     {
         id: 2,
         name: "División de Tecnologías de Automatización e Información ",
-        position: { lat: 20.57347660458673, lng: -100.4195127251979 },
+        position: { lat: 20.654961491523437, lng: -100.40440213729192 },
         staff: [
             { name: "José Gonzalo Lugo Pérez", position: "Director", phone: "442-123-4569" },
             { name: "Ing. Roberto Silva", position: "Coordinador", phone: "442-123-4570" }

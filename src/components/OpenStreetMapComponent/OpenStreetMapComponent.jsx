@@ -1,4 +1,4 @@
-// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Versión simplificada
+// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Sin panel de controles
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -11,9 +11,6 @@ import {
   LOCATION_OPTIONS,
 } from "../../data/buildingsData";
 import {
-  getCurrentUserLocation,
-  startLocationTracking,
-  stopLocationTracking,
   getLocationStatus,
 } from "../../utils/locationUtils";
 import {
@@ -51,21 +48,34 @@ const OpenStreetMapComponent = () => {
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [staffModalBuilding, setStaffModalBuilding] = useState(null);
 
-  // Estado interno para rutas (sin mostrar al usuario)
+  // Estado interno para rutas
   const [routesLoaded, setRoutesLoaded] = useState(false);
 
-  // Carga automática y silenciosa de rutas al inicializar
+  // Exponer para debugging y para el header
+  useEffect(() => {
+    window.routeManager = routeManager;
+    window.routesLoaded = routesLoaded;
+    
+    // Exponer funciones de tracking para el header
+    window.getTrackingStatus = () => ({
+      isTracking,
+      locationAvailable: locationStatus.available,
+      userLocation
+    });
+    
+    window.toggleLocationTracking = toggleTracking;
+    
+  }, [routesLoaded, isTracking, locationStatus.available, userLocation]);
+
+  // Carga de rutas al inicializar
   useEffect(() => {
     const initializeRoutes = async () => {
       try {
-        console.log('🚀 Cargando rutas del sistema...');
         const success = await loadPredefinedRoutes();
         
         if (success) {
           setRoutesLoaded(true);
-          console.log('✅ Rutas del sistema cargadas');
           
-          // Mostrar rutas en el mapa si está listo
           if (mapInstance.current) {
             routeManager.displayRoutesOnMap(mapInstance.current, {
               color: '#FF6B35',
@@ -74,18 +84,13 @@ const OpenStreetMapComponent = () => {
               dashArray: '8, 4'
             });
           }
-        } else {
-          console.log('⚠️ No se encontraron archivos de rutas del sistema');
         }
       } catch (error) {
-        console.error('❌ Error cargando rutas del sistema:', error);
-        // No mostrar error al usuario, las rutas son opcionales
+        setError(`Error cargando rutas: ${error.message}`);
       }
     };
 
-    // Cargar rutas después de un pequeño delay
-    const timer = setTimeout(initializeRoutes, 1000);
-    return () => clearTimeout(timer);
+    initializeRoutes();
   }, []);
 
   // Verificar estado de geolocalización
@@ -98,9 +103,7 @@ const OpenStreetMapComponent = () => {
           permission: status.permission,
           checking: false,
         });
-        console.log("📍 Estado de geolocalización:", status);
       } catch (error) {
-        console.error("Error verificando geolocalización:", error);
         setLocationStatus({
           available: false,
           permission: null,
@@ -130,6 +133,10 @@ const OpenStreetMapComponent = () => {
       if (building) {
         await handleGetDirections(building);
       }
+    };
+
+    window.handleLocationUpdate = (location) => {
+      handleLocationUpdate(location);
     };
 
     window.openImageModal = function (imageUrl) {
@@ -180,6 +187,9 @@ const OpenStreetMapComponent = () => {
       delete window.getDirectionsOSM;
       delete window.openImageModal;
       delete window.closeImageModal;
+      delete window.handleLocationUpdate;
+      delete window.getTrackingStatus;
+      delete window.toggleLocationTracking;
     };
   }, []);
 
@@ -201,8 +211,8 @@ const OpenStreetMapComponent = () => {
       distance: `${distanceKm} km`,
       duration: `${durationMin} min`,
       routeLine: routeLine,
-      source: 'Rutas del campus',
-      note: `Usando senderos del campus`
+      source: 'Rutas del campus (GeoJSON)',
+      note: `Usando senderos del campus - ${customRoute.segments?.length || 0} segmentos`
     };
   };
 
@@ -218,8 +228,6 @@ const OpenStreetMapComponent = () => {
   useEffect(() => {
     const initializeMap = () => {
       try {
-        console.log("🗺️ Inicializando mapa...");
-
         const map = L.map(mapRef.current, {
           center: MAP_CONFIG.center,
           zoom: MAP_CONFIG.zoom,
@@ -241,9 +249,7 @@ const OpenStreetMapComponent = () => {
 
         createBuildingMarkers(map);
 
-        console.log("✅ Mapa inicializado correctamente");
       } catch (err) {
-        console.error("❌ Error inicializando mapa:", err);
         setError(`Error inicializando mapa: ${err.message}`);
       }
     };
@@ -274,8 +280,6 @@ const OpenStreetMapComponent = () => {
 
   // Crear marcadores de edificios
   const createBuildingMarkers = (map) => {
-    console.log("🏢 Creando marcadores de edificios...");
-
     BUILDINGS_DATA.forEach((building) => {
       const buildingIcon = L.icon({
         iconUrl: MackersImage,
@@ -301,8 +305,6 @@ const OpenStreetMapComponent = () => {
 
       buildingMarkersRef.current.push(marker);
     });
-
-    console.log(`✅ ${BUILDINGS_DATA.length} marcadores creados`);
   };
 
   // Manejar actualización de ubicación
@@ -326,7 +328,7 @@ const OpenStreetMapComponent = () => {
     }
   };
 
-  // Toggle tracking
+  // Toggle tracking - Función que será llamada desde el header
   const toggleTracking = async () => {
     if (isTracking) {
       if (watchIdRef.current) {
@@ -334,13 +336,10 @@ const OpenStreetMapComponent = () => {
         watchIdRef.current = null;
       }
       setIsTracking(false);
-      console.log("🛑 Seguimiento detenido");
     } else {
       setError(null);
       
       try {
-        console.log("🎯 Iniciando seguimiento...");
-
         const location = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -387,19 +386,16 @@ const OpenStreetMapComponent = () => {
 
         watchIdRef.current = watchId;
         setIsTracking(true);
-        console.log("✅ Seguimiento iniciado");
 
       } catch (err) {
-        console.error("❌ Error al iniciar seguimiento:", err);
         setError(`Error al iniciar seguimiento: ${err.message}`);
       }
     }
   };
 
-  // Manejar direcciones con prioridad de rutas GeoJSON
+  // Manejar direcciones
   const handleGetDirections = async (building) => {
     const buildingName = building.name || `Edificio ${building.id}`;
-    console.log("🗺️ Calculando direcciones a:", buildingName);
 
     let currentUserLocation = userLocation;
 
@@ -427,7 +423,6 @@ const OpenStreetMapComponent = () => {
 
         handleLocationUpdate(currentUserLocation);
       } catch (err) {
-        console.error("❌ No se pudo obtener ubicación:", err);
         alert("No se pudo obtener tu ubicación para calcular la ruta.");
         return;
       }
@@ -441,9 +436,7 @@ const OpenStreetMapComponent = () => {
       let result;
 
       // Intentar usar rutas GeoJSON primero
-      if (routesLoaded && routeManager.routeSegments.length > 0) {
-        console.log("🛤️ Calculando ruta usando senderos del campus...");
-        
+      if (routeManager.routeSegments.length > 0) {
         const customRoute = routeManager.calculateCustomRoute(
           currentUserLocation.lat,
           currentUserLocation.lng,
@@ -452,14 +445,11 @@ const OpenStreetMapComponent = () => {
         );
 
         if (customRoute) {
-          console.log("✅ Ruta encontrada usando senderos del campus");
           result = await createRouteFromGeoJSON(customRoute);
         } else {
-          console.log("⚠️ No se encontró ruta por senderos, usando ruta directa...");
           result = await calculateWithOpenRouteService(currentUserLocation, building);
         }
       } else {
-        // Usar OpenRouteService o ruta directa
         result = await calculateWithOpenRouteService(currentUserLocation, building);
       }
 
@@ -470,13 +460,12 @@ const OpenStreetMapComponent = () => {
         `📏 Distancia: ${result.distance}\n` +
         `⏱️ Tiempo estimado: ${result.duration}\n` +
         `🚶‍♂️ Modo: Caminando\n` +
-        `🌐 Fuente: ${result.source}`;
+        `🌐 Fuente: ${result.source}\n` +
+        (result.note ? `📝 Nota: ${result.note}` : '');
 
       alert(routeInfo);
-      console.log("✅ Ruta calculada exitosamente");
 
     } catch (err) {
-      console.error("❌ Error calculando ruta:", err);
       alert(`Error calculando la ruta: ${err.message}`);
     }
   };
@@ -496,40 +485,42 @@ const OpenStreetMapComponent = () => {
 
   return (
     <div className="openstreetmap-container">
-      {/* Error Display */}
+      {/* Error Display - Solo si hay error */}
       {error && (
-        <div className="error-display">
-          <div>
-            <strong>⚠️ Error:</strong> {error}
-          </div>
-          <button onClick={() => setError(null)}>×</button>
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#ffebee',
+          border: '1px solid #f44336',
+          borderRadius: '4px',
+          padding: '12px 20px',
+          color: '#c62828',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          zIndex: 1000,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          <span>⚠️ {error}</span>
+          <button 
+            onClick={() => setError(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '18px',
+              cursor: 'pointer',
+              color: '#c62828',
+              padding: '0',
+              lineHeight: '1'
+            }}
+          >×</button>
         </div>
       )}
 
-      {/* Panel de controles simplificado */}
-      <div className="controls-section">
-        <div className="controls-header">
-          <h2 className="main-title">Sistema de Navegación UTEQ</h2>
-          <div>
-            <button
-              onClick={toggleTracking}
-              className={`button-base tracking-button ${isTracking ? "active" : "inactive"}`}
-              disabled={!locationStatus.available}
-            >
-              {isTracking ? "🛑 Detener Seguimiento" : "🎯 Iniciar Seguimiento"}
-            </button>
-          </div>
-        </div>
-
-        <p className="description-text">
-          {userLocation
-            ? `📍 Ubicación detectada (±${Math.round(userLocation.accuracy)}m) - Haz clic en un edificio para obtener direcciones`
-            : "📍 Haz clic en 'Iniciar Seguimiento' para detectar tu ubicación y calcular rutas"}
-        </p>
-      </div>
-
-      {/* Mapa */}
-      <div ref={mapRef} className="map-container" />
+      {/* Solo el mapa - Sin panel de controles */}
+      <div ref={mapRef} className="map-container" style={{ height: '100%' }} />
 
       {/* StaffModal */}
       <StaffModal
