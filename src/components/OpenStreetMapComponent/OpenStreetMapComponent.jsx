@@ -23,7 +23,7 @@ import {
 // Importar iconos
 import MackersImage from "../../assets/Macker_1.png";
 
-const OpenStreetMapComponent = () => {
+  const OpenStreetMapComponent = ({ selectedBuildingFromSearch }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const userMarkerRef = useRef(null);
@@ -38,6 +38,7 @@ const OpenStreetMapComponent = () => {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [error, setError] = useState(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const [markersReady, setMarkersReady] = useState(false);
   const [locationStatus, setLocationStatus] = useState({
     available: false,
     permission: null,
@@ -280,6 +281,8 @@ const OpenStreetMapComponent = () => {
 
   // Crear marcadores de edificios
   const createBuildingMarkers = (map) => {
+    buildingMarkersRef.current = []; // Limpiar marcadores existentes
+    
     BUILDINGS_DATA.forEach((building) => {
       const buildingIcon = L.icon({
         iconUrl: MackersImage,
@@ -293,6 +296,8 @@ const OpenStreetMapComponent = () => {
         title: building.name,
       }).addTo(map);
 
+      marker.buildingId = building.id;
+
       const popupContent = createBuildingPopupContent(building);
       marker.bindPopup(popupContent, {
         maxWidth: 300,
@@ -305,6 +310,10 @@ const OpenStreetMapComponent = () => {
 
       buildingMarkersRef.current.push(marker);
     });
+    
+    // Marcar que los marcadores están listos
+    setMarkersReady(true);
+    console.log('Markers created:', buildingMarkersRef.current.length);
   };
 
   // Manejar actualización de ubicación
@@ -482,6 +491,42 @@ const OpenStreetMapComponent = () => {
       }
     };
   }, []);
+
+  // UseEffect para enfocar edificio desde el buscador
+  useEffect(() => {
+    if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
+      console.log('Selected building from search:', selectedBuildingFromSearch);
+      console.log('Markers available:', buildingMarkersRef.current.length);
+      
+      const { lat, lng } = selectedBuildingFromSearch.position;
+      
+      // Buscar el marcador correspondiente primero
+      const marker = buildingMarkersRef.current.find(
+        m => m.buildingId === selectedBuildingFromSearch.id
+      );
+      
+      if (marker) {
+        console.log('Found marker, opening popup for:', selectedBuildingFromSearch.name);
+        
+        // Centrar el mapa en el edificio
+        mapInstance.current.setView([lat, lng], 18);
+        
+        // Esperar a que el mapa se centre y luego abrir el popup
+        setTimeout(() => {
+          try {
+            marker.openPopup();
+            setSelectedBuilding(selectedBuildingFromSearch);
+            console.log('Popup opened successfully');
+          } catch (error) {
+            console.error('Error opening popup:', error);
+          }
+        }, 500);
+      } else {
+        console.warn('Marker not found for building:', selectedBuildingFromSearch);
+        console.log('Available marker IDs:', buildingMarkersRef.current.map(m => m.buildingId));
+      }
+    }
+  }, [selectedBuildingFromSearch, markersReady]);
 
   return (
     <div className="openstreetmap-container">

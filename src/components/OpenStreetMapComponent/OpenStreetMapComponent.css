@@ -1,98 +1,204 @@
-/* OpenStreetMapComponent.css - Sin panel de controles */
-
+/* Contenedor principal */
 .openstreetmap-container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
+/* Contenedor del mapa */
 .map-container {
   width: 100%;
   flex: 1;
   min-height: 0;
   height: 100%;
+  z-index: 1;
 }
 
-/* Estilos específicos para Leaflet */
+/* Estilos base de Leaflet */
 .leaflet-container {
   width: 100%;
   height: 100%;
   font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f5f5;
 }
 
-/* Personalizar popups de Leaflet */
+/* ------------------------- */
+/* ESTILOS PARA POPUPS 
+/* ------------------------- */
+
+/* Contenedor del popup */
+.leaflet-popup {
+  position: absolute;
+  text-align: center;
+  margin-bottom: 20px !important;
+  z-index: 1000 !important;
+}
+
+/* Wrapper del contenido */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.4) !important;
+  padding: 1px !important;
+  text-align: left !important;
+  background: #fff !important;
+}
+
+/* Contenido del popup */
+.leaflet-popup-content {
+  margin: 8px 12px !important;
+  line-height: 1.4 !important;
+  min-width: 200px !important;
+}
+
+/* Popup personalizado */
 .custom-popup .leaflet-popup-content {
-  margin: 8px 12px;
-  line-height: 1.4;
-  font-size: 14px;
+  margin: 0 !important;
+  width: auto !important;
 }
 
-.popup-content {
-  max-width: 250px;
-  font-family: 'Segoe UI', sans-serif;
+.leaflet-popup-content-custom {
+  max-width: 250px !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  padding: 12px !important;
 }
 
-.popup-content h3 {
-  color: #1976d2;
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  font-weight: bold;
+/* Titulo */
+.leaflet-popup-content-custom h3 {
+  color: #1976d2 !important;
+  margin: 0 0 8px 0 !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  line-height: 1.3 !important;
 }
 
-/* Estilos para botones dentro de popups */
-.popup-content button {
-  margin: 2px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.2s;
+/* Imagen */
+.leaflet-popup-content-custom img {
+  width: 100% !important;
+  height: 100px !important;
+  object-fit: cover !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  margin-bottom: 8px !important;
+  display: block !important;
 }
 
-/* Fix para iconos de Leaflet */
+/* Botones */
+.leaflet-popup-content-custom button {
+  display: block !important;
+  width: 100% !important;
+  margin: 6px 0 0 0 !important;
+  padding: 8px 12px !important;
+  background: #4285F4 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  text-align: center !important;
+  transition: background 0.2s !important;
+}
+
+.leaflet-popup-content-custom button:hover {
+  background: #3367d6 !important;
+}
+
+/* Botón de personal */
+.leaflet-popup-content-custom button.staff-button {
+  background: #f1f1f1 !important;
+  color: #333 !important;
+  margin-bottom: 6px !important;
+}
+
+/* Flecha del popup */
+.leaflet-popup-tip-container {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 50%;
+  margin-left: -10px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.leaflet-popup-tip {
+  width: 15px;
+  height: 15px;
+  padding: 1px;
+  margin: -8px auto 0;
+  background: #fff !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.4) !important;
+  transform: rotate(45deg);
+}
+
+/* ------------------------- */
+/* ESTILOS ADICIONALES */
+/* ------------------------- */
+
+/* Fix para iconos */
 .leaflet-default-icon-path {
   background-image: url('leaflet/dist/images/marker-icon.png');
 }
 
-/* Personalizar controles de zoom */
+/* Controles de zoom */
 .leaflet-control-zoom {
   border: none !important;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+  margin-right: 10px !important;
+  margin-bottom: 10px !important;
 }
 
 .leaflet-control-zoom a {
   background-color: white !important;
   color: #333 !important;
   border: 1px solid #ccc !important;
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
 }
 
 .leaflet-control-zoom a:hover {
   background-color: #f4f4f4 !important;
 }
 
-/* Personalizar atribución */
+/* Atribución */
 .leaflet-control-attribution {
   background-color: rgba(255, 255, 255, 0.8) !important;
   font-size: 11px !important;
+  padding: 2px 5px !important;
 }
 
-/* Estilos para rutas */
-.route-line {
-  color: #4285F4;
-  weight: 4;
-  opacity: 0.8;
+/* Rutas */
+.leaflet-interactive {
+  stroke: #4285F4;
+  stroke-width: 4;
+  stroke-opacity: 0.8;
+  fill: none;
 }
 
-/* Responsive */
+/* ------------------------- */
+/* RESPONSIVE */
+/* ------------------------- */
+
 @media (max-width: 768px) {
-  .popup-content {
-    max-width: 200px;
+  .leaflet-popup-content-custom {
+    max-width: 200px !important;
+    padding: 10px !important;
   }
   
-  .popup-content h3 {
-    font-size: 14px;
+  .leaflet-popup-content-custom h3 {
+    font-size: 15px !important;
+  }
+  
+  .leaflet-popup-content-custom button {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .leaflet-control-zoom {
+    transform: scale(0.8);
+    transform-origin: bottom right;
   }
 }
