@@ -1,9 +1,10 @@
-// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Sin panel de controles
+// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Con ubicación manual
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./OpenStreetMapComponent.css";
 import StaffModal from "../StaffModal/StaffModal";
+import ManualLocationModal from "../ManualLocationModal/ManualLocationModal";
 import { routeManager, loadPredefinedRoutes } from "../../utils/geoJsonRouteManager";
 import {
   BUILDINGS_DATA,
@@ -23,7 +24,7 @@ import {
 // Importar iconos
 import MackersImage from "../../assets/Macker_1.png";
 
-  const OpenStreetMapComponent = ({ selectedBuildingFromSearch }) => {
+const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocationModal, onManualLocationModalClose, onCloseModal }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const userMarkerRef = useRef(null);
@@ -45,12 +46,13 @@ import MackersImage from "../../assets/Macker_1.png";
     checking: true,
   });
 
-  // Estados para StaffModal
+  // Estados para modales
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [staffModalBuilding, setStaffModalBuilding] = useState(null);
 
   // Estado interno para rutas
   const [routesLoaded, setRoutesLoaded] = useState(false);
+  
 
   // Exponer para debugging y para el header
   useEffect(() => {
@@ -68,6 +70,49 @@ import MackersImage from "../../assets/Macker_1.png";
     
   }, [routesLoaded, isTracking, locationStatus.available, userLocation]);
 
+  // Agregar event listener para clicks en el mapa (obtener coordenadas)
+  useEffect(() => {
+    if (mapInstance.current) {
+      const handleMapClick = (e) => {
+        const { lat, lng } = e.latlng;
+        console.log(`📍 Coordenadas del clic: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        
+        // Mostrar popup temporal con las coordenadas
+        const popup = L.popup()
+          .setLatLng([lat, lng])
+          .setContent(`
+            <div style="text-align: center; font-family: sans-serif;">
+              <strong>📍 Coordenadas:</strong><br>
+              <span style="font-size: 12px; color: #666;">
+                Lat: ${lat.toFixed(6)}<br>
+                Lng: ${lng.toFixed(6)}
+              </span><br>
+              <button onclick="navigator.clipboard.writeText('${lat.toFixed(6)}, ${lng.toFixed(6)}'); this.textContent='¡Copiado!'" 
+                      style="margin-top: 5px; padding: 4px 8px; background: #1976d2; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">
+                Copiar coordenadas
+              </button>
+            </div>
+          `)
+          .openOn(mapInstance.current);
+
+        // Auto-cerrar el popup después de 3 segundos
+        setTimeout(() => {
+          if (mapInstance.current) {
+            mapInstance.current.closePopup(popup);
+          }
+        }, 3000);
+      };
+
+      mapInstance.current.on('click', handleMapClick);
+
+      return () => {
+        if (mapInstance.current) {
+          mapInstance.current.off('click', handleMapClick);
+        }
+      };
+    }
+  }, [isMapReady]);
+
   // Carga de rutas al inicializar
   useEffect(() => {
     const initializeRoutes = async () => {
@@ -79,7 +124,7 @@ import MackersImage from "../../assets/Macker_1.png";
           
           if (mapInstance.current) {
             routeManager.displayRoutesOnMap(mapInstance.current, {
-              color: '#FF6B35',
+              color: '#FF6B35', 
               weight: 3,
               opacity: 0.6,
               dashArray: '8, 4'
@@ -140,6 +185,13 @@ import MackersImage from "../../assets/Macker_1.png";
       handleLocationUpdate(location);
     };
 
+    // Función para abrir el modal de ubicación manual desde cualquier lugar
+    window.openManualLocationModal = () => {
+      if (onManualLocationModalClose) {
+        onManualLocationModalClose(); // Esta función debería abrir el modal
+      }
+    };
+
     window.openImageModal = function (imageUrl) {
       const modalHtml = `
         <div id="image-modal-overlay" style="
@@ -191,13 +243,61 @@ import MackersImage from "../../assets/Macker_1.png";
       delete window.handleLocationUpdate;
       delete window.getTrackingStatus;
       delete window.toggleLocationTracking;
+      delete window.openManualLocationModal;
     };
-  }, []);
+  }, [onManualLocationModalClose]);
+
+  // Manejar ubicación manual
+  const handleManualLocationSet = async (location) => {
+    console.log('📍 Ubicación manual establecida:', location);
+    
+    // Detener tracking GPS si está activo
+    if (isTracking && watchIdRef.current) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+      setIsTracking(false);
+    }
+
+    // Establecer la nueva ubicación
+    handleLocationUpdate(location);
+
+    // Centrar el mapa en la nueva ubicación
+    if (mapInstance.current) {
+      mapInstance.current.setView([location.lat, location.lng], 18);
+    }
+
+    // Mostrar mensaje de confirmación
+    setError(null);
+    const tempMessage = `✅ Ubicación manual establecida: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+    setError(tempMessage);
+    
+    // Si hay un edificio seleccionado pendiente, calcular la ruta automáticamente
+    if (selectedBuilding) {
+      console.log('🗺️ Calculando ruta automáticamente para:', selectedBuilding.name);
+      
+      // Esperar un momento para que se actualice la ubicación
+      setTimeout(async () => {
+        try {
+          await calculateRouteToBuilding(selectedBuilding, location);
+        } catch (error) {
+          console.error('Error calculando ruta automática:', error);
+          setError(`Error calculando ruta: ${error.message}`);
+        }
+      }, 1000);
+    }
+    
+    // Limpiar mensaje después de 3 segundos
+    setTimeout(() => {
+      if (!selectedBuilding) { // Solo limpiar si no hay ruta en proceso
+        setError(null);
+      }
+    }, 3000);
+  };
 
   // Funciones para crear rutas
   const createRouteFromGeoJSON = async (customRoute) => {
     const routeLine = L.polyline(customRoute.coordinates, {
-      color: '#4285F4',
+      color: '#4285F4', // Azul para rutas calculadas dinámicamente
       weight: 4,
       opacity: 0.9,
       dashArray: null
@@ -271,7 +371,7 @@ import MackersImage from "../../assets/Macker_1.png";
   useEffect(() => {
     if (mapInstance.current && routesLoaded) {
       routeManager.displayRoutesOnMap(mapInstance.current, {
-        color: '#FF6B35',
+        color: '#FF6B35', 
         weight: 3,
         opacity: 0.6,
         dashArray: '8, 4'
@@ -402,45 +502,23 @@ import MackersImage from "../../assets/Macker_1.png";
     }
   };
 
-  // Manejar direcciones
-  const handleGetDirections = async (building) => {
+  // Función auxiliar para calcular ruta a un edificio específico
+  const calculateRouteToBuilding = async (building, currentUserLocation) => {
     const buildingName = building.name || `Edificio ${building.id}`;
-
-    let currentUserLocation = userLocation;
-
-    if (!currentUserLocation) {
-      try {
-        currentUserLocation = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                accuracy: position.coords.accuracy,
-                timestamp: position.timestamp,
-              };
-              resolve(location);
-            },
-            (error) => reject(error),
-            {
-              enableHighAccuracy: false,
-              timeout: 5000,
-              maximumAge: 60000,
-            }
-          );
-        });
-
-        handleLocationUpdate(currentUserLocation);
-      } catch (err) {
-        alert("No se pudo obtener tu ubicación para calcular la ruta.");
-        return;
-      }
-    }
-
+    
     try {
       if (currentRouteRef.current) {
         mapInstance.current.removeLayer(currentRouteRef.current);
       }
+
+      // Limpiar rutas calculadas anteriores (solo azules), mantener las predefinidas (moradas)
+      mapInstance.current.eachLayer((layer) => {
+        if (layer instanceof L.Polyline && 
+            layer.options.color === '#4285F4' &&  // Solo eliminar rutas azules
+            layer !== routeManager.routeLayer) {   // Mantener las rutas predefinidas
+          mapInstance.current.removeLayer(layer);
+        }
+      });
 
       let result;
 
@@ -464,18 +542,86 @@ import MackersImage from "../../assets/Macker_1.png";
 
       currentRouteRef.current = result.routeLine;
 
+      const locationSource = currentUserLocation.manual ? " (ubicación manual)" : " (GPS)";
       const routeInfo = 
         `🎯 Ruta a ${buildingName}\n\n` +
         `📏 Distancia: ${result.distance}\n` +
         `⏱️ Tiempo estimado: ${result.duration}\n` +
         `🚶‍♂️ Modo: Caminando\n` +
+        `📍 Origen: Tu ubicación${locationSource}\n` +
         `🌐 Fuente: ${result.source}\n` +
         (result.note ? `📝 Nota: ${result.note}` : '');
 
       alert(routeInfo);
 
+      // Limpiar edificio seleccionado después de calcular la ruta
+      setSelectedBuilding(null);
+      setError('✅ Ruta calculada exitosamente');
+      
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
+
     } catch (err) {
-      alert(`Error calculando la ruta: ${err.message}`);
+      setSelectedBuilding(null);
+      throw new Error(`Error calculando la ruta: ${err.message}`);
+    }
+  };
+
+  // Manejar direcciones
+  const handleGetDirections = async (building) => {
+    const buildingName = building.name || `Edificio ${building.id}`;
+
+    let currentUserLocation = userLocation;
+
+    if (!currentUserLocation) {
+      // Si no hay ubicación del usuario, sugerir usar ubicación manual
+      const useManual = confirm(
+        "No se ha establecido tu ubicación. ¿Quieres usar la ubicación manual para calcular la ruta?"
+      );
+      
+      if (useManual) {
+        // Guardar el edificio para calcular la ruta después de establecer la ubicación
+        setSelectedBuilding(building);
+        // Abrir el modal de ubicación manual directamente
+        onManualLocationModalClose(); // Esta función abre el modal
+        return;
+      }
+
+      // Intentar obtener ubicación GPS
+      try {
+        currentUserLocation = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const location = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: position.timestamp,
+              };
+              resolve(location);
+            },
+            (error) => reject(error),
+            {
+              enableHighAccuracy: false,
+              timeout: 5000,
+              maximumAge: 60000,
+            }
+          );
+        });
+
+        handleLocationUpdate(currentUserLocation);
+      } catch (err) {
+        alert("No se pudo obtener tu ubicación para calcular la ruta. Usa 'Ubicación Manual' en el header.");
+        return;
+      }
+    }
+
+    // Usar la función auxiliar para calcular la ruta
+    try {
+      await calculateRouteToBuilding(building, currentUserLocation);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -537,18 +683,19 @@ import MackersImage from "../../assets/Macker_1.png";
           top: '80px',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: '#ffebee',
-          border: '1px solid #f44336',
+          background: error.includes('✅') ? '#e8f5e8' : '#ffebee',
+          border: `1px solid ${error.includes('✅') ? '#4caf50' : '#f44336'}`,
           borderRadius: '4px',
           padding: '12px 20px',
-          color: '#c62828',
+          color: error.includes('✅') ? '#2e7d32' : '#c62828',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           zIndex: 1000,
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          maxWidth: '80%'
         }}>
-          <span>⚠️ {error}</span>
+          <span>{error}</span>
           <button 
             onClick={() => setError(null)}
             style={{
@@ -556,7 +703,7 @@ import MackersImage from "../../assets/Macker_1.png";
               border: 'none',
               fontSize: '18px',
               cursor: 'pointer',
-              color: '#c62828',
+              color: error.includes('✅') ? '#2e7d32' : '#c62828',
               padding: '0',
               lineHeight: '1'
             }}
@@ -564,7 +711,7 @@ import MackersImage from "../../assets/Macker_1.png";
         </div>
       )}
 
-      {/* Solo el mapa - Sin panel de controles */}
+      {/* Solo el mapa */}
       <div ref={mapRef} className="map-container" style={{ height: '100%' }} />
 
       {/* StaffModal */}
@@ -573,6 +720,14 @@ import MackersImage from "../../assets/Macker_1.png";
         onClose={() => setStaffModalOpen(false)}
         staff={staffModalBuilding?.staff || []}
         buildingName={staffModalBuilding?.name || ""}
+      />
+
+      {/* ManualLocationModal */}
+      <ManualLocationModal
+        isOpen={showManualLocationModal}
+        onClose={onCloseModal || onManualLocationModalClose}
+        onLocationSet={handleManualLocationSet}
+        currentLocation={userLocation}
       />
     </div>
   );

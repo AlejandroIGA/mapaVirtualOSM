@@ -202,3 +202,23 @@
     transform-origin: bottom right;
   }
 }
+
+.leaflet-interactive[stroke="#4285F4"] {
+  stroke: #b5ff35 !important;
+  stroke-dasharray: 12, 6 !important;
+  stroke-width: 5 !important;
+  stroke-opacity: 0.9 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Estilo general para todas las rutas */
+.leaflet-interactive {
+  stroke: #FF6B35 !important;
+  stroke-width: 3 !important;
+  stroke-opacity: 0.9 !important;
+  stroke-dasharray: 12, 6 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}

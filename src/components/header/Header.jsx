@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Header.css'
 import logoUteq from '../../assets/logo-uteq-x2.png'
 
-const Header = () => {
+const Header = ({ onManualLocationClick }) => {
     const [trackingStatus, setTrackingStatus] = useState({
         isTracking: false,
         locationAvailable: false,
@@ -35,6 +35,12 @@ const Header = () => {
         }
     };
 
+    const handleManualLocation = () => {
+        if (onManualLocationClick) {
+            onManualLocationClick();
+        }
+    };
+
     return (
         <header className='header-component'>
             <div className="header-left">
@@ -42,6 +48,17 @@ const Header = () => {
             </div>
             
             <div className="header-right">
+                {/* Botón de ubicación manual */}
+                <button
+                    onClick={handleManualLocation}
+                    className="manual-location-button"
+                    title="Establecer ubicación manual para pruebas"
+                >
+                    <span className="manual-icon">📍</span>
+                    <span className="manual-text">Ubicación Manual</span>
+                </button>
+
+                {/* Botón de tracking GPS */}
                 <button
                     onClick={handleToggleTracking}
                     className={`tracking-button ${trackingStatus.isTracking ? "active" : "inactive"}`}
@@ -57,12 +74,12 @@ const Header = () => {
                     {trackingStatus.isTracking ? (
                         <>
                             <span className="tracking-icon">🛑</span>
-                            <span className="tracking-text">Detener Seguimiento</span>
+                            <span className="tracking-text">Detener GPS</span>
                         </>
                     ) : (
                         <>
                             <span className="tracking-icon">🎯</span>
-                            <span className="tracking-text">Iniciar Seguimiento</span>
+                            <span className="tracking-text">Iniciar GPS</span>
                         </>
                     )}
                 </button>
