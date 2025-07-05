@@ -26,10 +26,9 @@
 }
 
 /* ------------------------- */
-/* ESTILOS PARA POPUPS 
+/* ESTILOS PARA POPUPS */
 /* ------------------------- */
 
-/* Contenedor del popup */
 .leaflet-popup {
   position: absolute;
   text-align: center;
@@ -37,7 +36,6 @@
   z-index: 1000 !important;
 }
 
-/* Wrapper del contenido */
 .leaflet-popup-content-wrapper {
   border-radius: 8px !important;
   box-shadow: 0 3px 14px rgba(0,0,0,0.4) !important;
@@ -46,14 +44,12 @@
   background: #fff !important;
 }
 
-/* Contenido del popup */
 .leaflet-popup-content {
   margin: 8px 12px !important;
   line-height: 1.4 !important;
   min-width: 200px !important;
 }
 
-/* Popup personalizado */
 .custom-popup .leaflet-popup-content {
   margin: 0 !important;
   width: auto !important;
@@ -65,7 +61,6 @@
   padding: 12px !important;
 }
 
-/* Titulo */
 .leaflet-popup-content-custom h3 {
   color: #1976d2 !important;
   margin: 0 0 8px 0 !important;
@@ -74,7 +69,6 @@
   line-height: 1.3 !important;
 }
 
-/* Imagen */
 .leaflet-popup-content-custom img {
   width: 100% !important;
   height: 100px !important;
@@ -85,7 +79,6 @@
   display: block !important;
 }
 
-/* Botones */
 .leaflet-popup-content-custom button {
   display: block !important;
   width: 100% !important;
@@ -105,14 +98,12 @@
   background: #3367d6 !important;
 }
 
-/* Botón de personal */
 .leaflet-popup-content-custom button.staff-button {
   background: #f1f1f1 !important;
   color: #333 !important;
   margin-bottom: 6px !important;
 }
 
-/* Flecha del popup */
 .leaflet-popup-tip-container {
   position: absolute;
   width: 20px;
@@ -134,7 +125,89 @@
 }
 
 /* ------------------------- */
-/* ESTILOS ADICIONALES */
+/* ESTILOS PARA RUTAS */
+/* ------------------------- */
+
+/* Rutas calculadas con red de nodos (PRIORIDAD) */
+.leaflet-interactive[stroke="#00FF00"] {
+  stroke: #1a3dda !important; /* Verde brillante */
+  stroke-width: 5 !important;
+  stroke-opacity: 0.9 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+  /* Sombra para destacar */
+  filter: drop-shadow(0 0 3px rgba(0, 255, 0, 0.5));
+}
+
+/* Rutas calculadas con GeoJSON (FALLBACK) */
+.leaflet-interactive[stroke="#4285F4"] {
+  stroke: #4285F4 !important; /* Azul Google */
+  stroke-width: 4 !important;
+  stroke-opacity: 0.9 !important;
+  stroke-dasharray: none !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}
+
+/* Senderos predefinidos para visualización */
+.leaflet-interactive[stroke="#FF6B35"] {
+  stroke: #FF6B35 !important; /* Naranja */
+  stroke-width: 3 !important;
+  stroke-opacity: 0.6 !important;
+  stroke-dasharray: 8, 4 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}
+
+/* Rutas de OpenRouteService */
+.leaflet-interactive[stroke="#FF9800"] {
+  stroke: #FF9800 !important; /* Naranja oscuro */
+  stroke-width: 3 !important;
+  stroke-opacity: 0.7 !important;
+  stroke-dasharray: 10, 10 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}
+
+/* Conexiones de debug entre nodos */
+.leaflet-interactive[stroke="#0066cc"] {
+  stroke: #0066cc !important;
+  stroke-width: 2 !important;
+  stroke-opacity: 0.6 !important;
+  stroke-dasharray: 5, 5 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  fill: none !important;
+}
+
+/* ------------------------- */
+/* MARCADORES DE NODOS DEBUG */
+/* ------------------------- */
+
+/* Nodos de edificios (rojos) */
+.leaflet-interactive[fill="#ff0000"] {
+  fill: #ff0000 !important;
+  fill-opacity: 0.8 !important;
+  stroke: #000 !important;
+  stroke-width: 1 !important;
+  stroke-opacity: 1 !important;
+}
+
+/* Nodos de cruces/entrada (verdes) */
+.leaflet-interactive[fill="#00ff00"] {
+  fill: #00ff00 !important;
+  fill-opacity: 0.8 !important;
+  stroke: #000 !important;
+  stroke-width: 1 !important;
+  stroke-opacity: 1 !important;
+}
+
+/* ------------------------- */
+/* CONTROLES Y UI */
 /* ------------------------- */
 
 /* Fix para iconos */
@@ -170,12 +243,46 @@
   padding: 2px 5px !important;
 }
 
-/* Rutas */
-.leaflet-interactive {
-  stroke: #4285F4;
-  stroke-width: 4;
-  stroke-opacity: 0.8;
-  fill: none;
+/* ------------------------- */
+/* MARCADORES DE USUARIO */
+/* ------------------------- */
+
+/* Marcador de ubicación del usuario */
+.user-location-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.user-location-marker div {
+  background-color: #4285F4 !important;
+  border: 3px solid white !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+  animation: pulse-location 2s infinite;
+}
+
+@keyframes pulse-location {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Círculo de precisión */
+.leaflet-interactive[fill="#4285F4"][fill-opacity="0.15"] {
+  fill: #4285F4 !important;
+  fill-opacity: 0.15 !important;
+  stroke: #4285F4 !important;
+  stroke-width: 2 !important;
+  stroke-opacity: 0.8 !important;
 }
 
 /* ------------------------- */
@@ -201,24 +308,125 @@
     transform: scale(0.8);
     transform-origin: bottom right;
   }
+
+  /* Ajustar grosor de rutas en móvil */
+  .leaflet-interactive[stroke="#00FF00"] {
+    stroke-width: 4 !important;
+  }
+  
+  .leaflet-interactive[stroke="#4285F4"] {
+    stroke-width: 3 !important;
+  }
+  
+  .leaflet-interactive[stroke="#FF6B35"] {
+    stroke-width: 2 !important;
+  }
 }
 
-.leaflet-interactive[stroke="#4285F4"] {
-  stroke: #b5ff35 !important;
-  stroke-dasharray: 12, 6 !important;
-  stroke-width: 5 !important;
-  stroke-opacity: 0.9 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
+/* ------------------------- */
+/* ANIMACIONES Y EFECTOS */
+/* ------------------------- */
+
+/* Efecto hover para marcadores de edificios */
+.leaflet-marker-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
-/* Estilo general para todas las rutas */
+/* Efecto de aparición para rutas */
 .leaflet-interactive {
-  stroke: #FF6B35 !important;
-  stroke-width: 3 !important;
-  stroke-opacity: 0.9 !important;
-  stroke-dasharray: 12, 6 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
-  fill: none !important;
+  animation: routeAppear 0.8s ease-out;
+}
+
+@keyframes routeAppear {
+  0% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dasharray: inherit;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ------------------------- */
+/* CLASES AUXILIARES */
+/* ------------------------- */
+
+/* Clase para rutas destacadas */
+.route-highlighted {
+  animation: routeHighlight 2s infinite;
+}
+
+@keyframes routeHighlight {
+  0%, 100% {
+    stroke-opacity: 0.9;
+  }
+  50% {
+    stroke-opacity: 0.6;
+  }
+}
+
+/* Clase para nodos activos */
+.node-active {
+  animation: nodeGlow 1.5s infinite;
+}
+
+@keyframes nodeGlow {
+  0%, 100% {
+    fill-opacity: 0.8;
+  }
+  50% {
+    fill-opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Panel de debug mejorado */
+.debug-panel {
+  position: fixed;
+  top: 80px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.1);
+  min-width: 140px;
+}
+
+.debug-panel strong {
+  color: #1976d2;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.debug-panel button {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.debug-panel button:hover {
+  background: #3367d6;
+  transform: translateY(-1px);
+}
+
+.debug-panel button.active {
+  background: #ff6b35;
+}
+
+.debug-panel button.active:hover {
+  background: #e55a2b;
 }
