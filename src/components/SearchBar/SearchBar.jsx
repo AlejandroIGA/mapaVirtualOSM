@@ -1,7 +1,8 @@
 // components/SearchBar.jsx
 import { useState, useEffect } from 'react';
 import './SearchBar.css';
-import { fetchBuildingsWithStaff } from '../../data/buildingsData';
+import { fetchBuildings,fetchAllStaff } from '../../data/buildingsData';
+
 
 const normalizeText = (text) =>
   (text || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -11,16 +12,33 @@ const SearchBar = ({ onSelectBuilding }) => {
   const [results, setResults] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
   const [buildings, setBuildings] = useState([]);
+  const [staffList, setStaffList] = useState([]); // ✅ lista de personal
   const [searchType, setSearchType] = useState('building'); // 'building' o 'staff'
 
+  // Cargar edificios al inicio
   useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchBuildingsWithStaff();
+    const loadBuildings = async () => {
+      const data = await fetchBuildings();
       setBuildings(data);
     };
-    loadData();
+    loadBuildings();
   }, []);
 
+  // Cargar personal solo si se selecciona "Buscar personal"
+  useEffect(() => {
+    setSearchTerm('');
+    setResults([]);
+
+    if (searchType === 'staff' && staffList.length === 0) {
+      const loadStaff = async () => {
+        const data = await fetchAllStaff(); // ✅ aquí se carga TODO el personal
+        setStaffList(data);
+      };
+      loadStaff();
+    }
+  }, [searchType]);
+
+  // Filtrar resultados al escribir
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setResults([]);
@@ -28,7 +46,6 @@ const SearchBar = ({ onSelectBuilding }) => {
     }
 
     const normalizedTerm = normalizeText(searchTerm);
-
     let filteredResults = [];
 
     if (searchType === 'building') {
@@ -36,25 +53,21 @@ const SearchBar = ({ onSelectBuilding }) => {
         normalizeText(building.name).includes(normalizedTerm)
       );
     } else if (searchType === 'staff') {
-      buildings.forEach(building => {
-        (building.staff || []).forEach(person => {
-          if (normalizeText(person.name).includes(normalizedTerm)) {
+      staffList.forEach(person => {
+        if (normalizeText(person.name).includes(normalizedTerm)) {
+          const building = buildings.find(b => b.name === person.buildingName);
+          if (building) {
             filteredResults.push({
               building,
-              staff: person,
+              staff: person
             });
           }
-        });
+        }
       });
     }
 
     setResults(filteredResults);
-  }, [searchTerm, buildings, searchType]);
-
-  useEffect(() => {
-    setSearchTerm('');
-    setResults([]);
-  }, [searchType]);
+  }, [searchTerm, buildings, staffList, searchType]);
 
   const handleSuggestionClick = (item) => {
     if (searchType === 'building') {
