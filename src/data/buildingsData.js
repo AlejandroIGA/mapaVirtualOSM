@@ -1,83 +1,71 @@
-// data/buildingsData.js - Configuración actualizada
+// src/data/buildingsData.js
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from './firebase';
 import IntelImg from '../assets/Intel.png';
 import RectoriaImg from '../assets/Rectoria.png';
 import BibliotecaImg from '../assets/Biblioteca.png';
 import PidetImg from '../assets/Pidet.png';
 import AuditorioImg from '../assets/Auditorio.png';
 
-// ✅ LOS DATOS DE EDIFICIOS NO CAMBIAN
-export const BUILDINGS_DATA = [
-    {
-        id: 1,
-        name: "Biblioteca Central",
-        position: { lat: 20.654832, lng: -100.403785 },
-        image: BibliotecaImg,
-        staff: [
-            { name: "María González", position: "Bibliotecaria Jefe", phone: "442-123-4567" },
-            { name: "Carlos Pérez", position: "Asistente", phone: "442-123-4568" }
-        ]
-    },
-    {
-        id: 2,
-        name: "División de Tecnologías de Automatización e Información ",
-        position: { lat: 20.654961491523437, lng: -100.40440213729192 },
-        staff: [
-            { name: "José Gonzalo Lugo Pérez", position: "Director", phone: "442-123-4569" },
-            { name: "Ing. Roberto Silva", position: "Coordinador", phone: "442-123-4570" }
-        ]
-    },
-    {
-        id: 3,
-        name: "Rectoría",
-        position: { lat: 20.6543236, lng: -100.4055099 },
-        image: RectoriaImg,
-        staff: [
-            { name: "Dr. Luis Fernando Pantoja Amaro", position: "Rector", phone: "442-123-4571" },
-            { name: "Dr. José Cabello Gil", position: "Secretario", phone: "442-123-4572" }
-        ]
-    },
-    {
-        id: 4,
-        name: "Auditorio",
-        position: { lat: 20.655972, lng: -100.405477 },
-        image: AuditorioImg,
-        staff: [
-            { name: "Mtra. Laura Hernández", position: "Coordinadora de Eventos", phone: "442-321-7890" },
-            { name: "Ing. Carlos Ramírez", position: "Técnico de Soporte", phone: "442-321-7891" }
-        ]
-    },
-    {
-        id: 5,
-        name: "Creativity and Innovation Center 4.0 CIC 4.0",
-        position: { lat: 20.657179, lng: -100.403578 },
-        image: IntelImg,
-        staff: [
-            { name: "Dr. Elena Ríos", position: "Directora de Innovación", phone: "442-987-6543" },
-            { name: "Lic. Marcos Villa", position: "Especialista en Vinculación", phone: "442-987-6544" }
-        ]
-    },
-    {
-        id: 6,
-        name: "Pidet",
-        position: { lat: 20.65768, lng: -100.403577 },
-        image: PidetImg,
-        staff: [
-            { name: "Dr. Alberto López", position: "Coordinador de Proyectos", phone: "442-246-8100" },
-            { name: "Mtra. Susana Díaz", position: "Gestora Administrativa", phone: "442-246-8101" }
-        ]
-    },
-    {
-        id: 7,
-        name: "Servicios escolares",
-        position: { lat: 20.654232, lng: -100.40618 },
-        image: "",
-        staff: [
-            { name: "Lic. René Rentería Contreras", position: "Secretario de Vinculación", phone: "442-123-4571" },
-            { name: "Lic. Juan Torres", position: "Secretario", phone: "442-123-4572" }
-        ]
-    }
-];
+const IMAGE_MAP = {
+    IntelImg,
+    RectoriaImg,
+    BibliotecaImg,
+    PidetImg,
+    AuditorioImg
+};
 
+// 🔄 Función para cargar edificios con su personal
+export const fetchBuildingsWithStaff = async () => {
+    try {
+        const buildingsSnapshot = await getDocs(collection(db, 'edificio'));
+        console.log("📄 Total documentos encontrados:", buildingsSnapshot.docs.length);
+
+        if (buildingsSnapshot.docs.length === 0) {
+            console.warn("⚠️ No se encontraron edificios en la colección 'edificios'");
+            return [];
+        }
+
+        const buildings = await Promise.all(
+            buildingsSnapshot.docs.map(async (doc) => {
+                const building = doc.data();
+                const buildingId = doc.id;
+
+
+                // Obtener personal del edificio
+                const staffSnapshot = await getDocs(
+                    query(collection(db, 'personal'), where('academic_division', '==', building.name))
+                );
+
+                const staff = staffSnapshot.docs.map((staffDoc) => {
+                    const { name, role, shift } = staffDoc.data();
+                    return {
+                        name,
+                        position: role,
+                        shift
+                    };
+                });
+
+                return {
+                    id: buildingId,
+                    name: building.name,
+                    position: typeof building.position === 'string'
+                        ? JSON.parse(building.position.replace(/(\w+):/g, '"$1":'))
+                        : building.position,
+                    image: IMAGE_MAP[building.image] || '',
+                    staff
+                };
+            })
+        );
+
+
+        return buildings;
+
+    } catch (error) {
+        console.error("❌ Error al obtener edificios con personal:", error);
+        return [];
+    }
+};
 // 🗺️ Configuración del mapa para Leaflet + OSM
 export const MAP_CONFIG = {
     center: [20.572976640827633, -100.419786585765], // [lat, lng] para Leaflet
