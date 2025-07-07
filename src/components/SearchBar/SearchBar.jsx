@@ -1,7 +1,7 @@
-// SearchBar.jsx
+// components/SearchBar.jsx
 import { useState, useEffect } from 'react';
 import './SearchBar.css';
-import { BUILDINGS_DATA } from '../../data/buildingsData';
+import { fetchBuildingsWithStaff } from '../../data/buildingsData';
 
 const normalizeText = (text) =>
   (text || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -10,6 +10,16 @@ const SearchBar = ({ onSelectBuilding }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
+  const [buildings, setBuildings] = useState([]);
+  const [searchType, setSearchType] = useState('building'); // 'building' o 'staff'
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchBuildingsWithStaff();
+      setBuildings(data);
+    };
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -19,27 +29,76 @@ const SearchBar = ({ onSelectBuilding }) => {
 
     const normalizedTerm = normalizeText(searchTerm);
 
-    const filteredResults = BUILDINGS_DATA.filter(building => {
-      const nameMatch = normalizeText(building.name).includes(normalizedTerm);
-      return nameMatch;
-    });
+    let filteredResults = [];
+
+    if (searchType === 'building') {
+      filteredResults = buildings.filter(building =>
+        normalizeText(building.name).includes(normalizedTerm)
+      );
+    } else if (searchType === 'staff') {
+      buildings.forEach(building => {
+        (building.staff || []).forEach(person => {
+          if (normalizeText(person.name).includes(normalizedTerm)) {
+            filteredResults.push({
+              building,
+              staff: person,
+            });
+          }
+        });
+      });
+    }
 
     setResults(filteredResults);
-  }, [searchTerm]);
+  }, [searchTerm, buildings, searchType]);
 
-  const handleSuggestionClick = (building) => {
-    setSearchTerm(building.name);
-    onSelectBuilding?.(building); // Llama a la función del padre
+  useEffect(() => {
+    setSearchTerm('');
+    setResults([]);
+  }, [searchType]);
+
+  const handleSuggestionClick = (item) => {
+    if (searchType === 'building') {
+      setSearchTerm(item.name);
+      onSelectBuilding?.(item);
+    } else if (searchType === 'staff') {
+      setSearchTerm(item.staff.name);
+      onSelectBuilding?.(item.building);
+    }
     setIsFocused(false);
   };
 
   return (
     <div className="search-bar">
+      <div className="search-options">
+        <label>
+          <input
+            type="checkbox"
+            value="building"
+            checked={searchType === 'building'}
+            onChange={() => setSearchType('building')}
+          />
+          Buscar edificio 🏪
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            value="staff"
+            checked={searchType === 'staff'}
+            onChange={() => setSearchType('staff')}
+          />
+          Buscar personal 👥
+        </label>
+      </div>
+
       <div className="search-bar-container">
         <input
           type="text"
           className="search-input"
-          placeholder="Buscar edificio o persona..."
+          placeholder={
+            searchType === 'building'
+              ? 'Buscar edificio...'
+              : 'Buscar personal...'
+          }
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -54,13 +113,15 @@ const SearchBar = ({ onSelectBuilding }) => {
 
       {isFocused && searchTerm && results.length > 0 && (
         <div className="search-suggestions">
-          {results.slice(0, 5).map(building => (
+          {results.slice(0, 5).map((item, index) => (
             <div
-              key={building.id}
+              key={index}
               className="suggestion-item"
-              onClick={() => handleSuggestionClick(building)}
+              onClick={() => handleSuggestionClick(item)}
             >
-              {building.name}
+              {searchType === 'building'
+                ? item.name
+                : `${item.staff.name} (${item.building.name})`}
             </div>
           ))}
         </div>

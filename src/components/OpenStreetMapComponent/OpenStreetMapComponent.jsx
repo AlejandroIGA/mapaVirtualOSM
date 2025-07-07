@@ -12,7 +12,7 @@ import { nodeManager, initializeNodeNetwork } from "../../utils/nodeNetworkManag
 import { routeManager, loadPredefinedRoutes } from "../../utils/geoJsonRouteManager";
 
 import {
-  BUILDINGS_DATA,
+  fetchBuildingsWithStaff,
   MAP_CONFIG,
   LOCATION_OPTIONS,
 } from "../../data/buildingsData";
@@ -45,6 +45,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
   const [error, setError] = useState(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [markersReady, setMarkersReady] = useState(false);
+  const [buildingsData, setBuildingsData] = useState([]);
   const [locationStatus, setLocationStatus] = useState({
     available: false,
     permission: null,
@@ -85,7 +86,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
       locationAvailable: locationStatus.available,
       userLocation
     });
-    
+
     window.toggleLocationTracking = toggleTracking;
     
   }, [routesLoaded, nodesLoaded, isTracking, locationStatus.available, userLocation, showDebugNodes]);
@@ -174,6 +175,42 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
     }
   }, [isMapReady, nodesLoaded]);
 
+  // Carga de rutas al inicializar
+  useEffect(() => {
+    const initializeRoutes = async () => {
+      try {
+        const success = await loadPredefinedRoutes();
+
+        if (success) {
+          setRoutesLoaded(true);
+
+          if (mapInstance.current) {
+            routeManager.displayRoutesOnMap(mapInstance.current, {
+              color: '#FF6B35',
+              weight: 3,
+              opacity: 0.6,
+              dashArray: '8, 4'
+            });
+          }
+        }
+      } catch (error) {
+        setError(`Error cargando rutas: ${error.message}`);
+      }
+    };
+
+    initializeRoutes();
+  }, []);
+
+  useEffect(() => {
+    const loadBuildings = async () => {
+      const buildings = await fetchBuildingsWithStaff();
+      setBuildingsData(buildings);
+    };
+
+    loadBuildings();
+  }, []);
+
+
   // Verificar estado de geolocalización
   useEffect(() => {
     const checkLocationAvailability = async () => {
@@ -198,9 +235,10 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
 
   // Configurar funciones globales para popups
   useEffect(() => {
+    if (buildingsData.length === 0) return;
+
     window.openStaffModalById = (buildingId) => {
-      const building = BUILDINGS_DATA.find((b) => String(b.id) === String(buildingId));
-      
+      const building = buildingsData.find((b) => String(b.id) === String(buildingId));
       if (building) {
         setStaffModalBuilding(building);
         setStaffModalOpen(true);
@@ -210,7 +248,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
     };
 
     window.getDirectionsOSM = async (buildingId, destLat, destLng) => {
-      const building = BUILDINGS_DATA.find(b => String(b.id) === String(buildingId));
+      const building = buildingsData.find(b => String(b.id) === String(buildingId));
       if (building) {
         await handleGetDirections(building);
       }
@@ -272,20 +310,19 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
     return () => {
       delete window.openStaffModalById;
       delete window.getDirectionsOSM;
+      delete window.handleLocationUpdate;
+      delete window.openManualLocationModal;
       delete window.openImageModal;
       delete window.closeImageModal;
-      delete window.handleLocationUpdate;
-      delete window.getTrackingStatus;
-      delete window.toggleLocationTracking;
-      delete window.openManualLocationModal;
       delete window.toggleDebugNodes;
     };
-  }, [onManualLocationModalClose]);
+  }, [buildingsData, onManualLocationModalClose]);
+
 
   // Manejar ubicación manual
   const handleManualLocationSet = async (location) => {
     console.log('📍 Ubicación manual establecida:', location);
-    
+
     // Detener tracking GPS si está activo
     if (isTracking && watchIdRef.current) {
       navigator.geolocation.clearWatch(watchIdRef.current);
@@ -305,11 +342,11 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
     setError(null);
     const tempMessage = `✅ Ubicación manual establecida: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
     setError(tempMessage);
-    
+
     // Si hay un edificio seleccionado pendiente, calcular la ruta automáticamente
     if (selectedBuilding) {
       console.log('🗺️ Calculando ruta automáticamente para:', selectedBuilding.name);
-      
+
       setTimeout(async () => {
         try {
           await calculateRouteToBuilding(selectedBuilding, location);
@@ -319,7 +356,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
         }
       }, 1000);
     }
-    
+
     // Limpiar mensaje después de 3 segundos
     setTimeout(() => {
       if (!selectedBuilding) {
@@ -369,6 +406,12 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
     );
   };
 
+  useEffect(() => {
+    if (isMapReady && mapInstance.current && buildingsData.length > 0) {
+      createBuildingMarkers(mapInstance.current);
+    }
+  }, [isMapReady, buildingsData]);
+
   // Inicializar mapa
   useEffect(() => {
     const initializeMap = () => {
@@ -392,7 +435,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
         mapInstance.current = map;
         setIsMapReady(true);
 
-        createBuildingMarkers(map);
+        //createBuildingMarkers(map);
 
       } catch (err) {
         setError(`Error inicializando mapa: ${err.message}`);
@@ -415,7 +458,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
   useEffect(() => {
     if (mapInstance.current && routesLoaded) {
       routeManager.displayRoutesOnMap(mapInstance.current, {
-        color: '#FF6B35', 
+        color: '#FF6B35',
         weight: 3,
         opacity: 0.6,
         dashArray: '8, 4'
@@ -425,9 +468,9 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
 
   // Crear marcadores de edificios
   const createBuildingMarkers = (map) => {
-    buildingMarkersRef.current = [];
-    
-    BUILDINGS_DATA.forEach((building) => {
+    buildingMarkersRef.current = []; // Limpiar marcadores existentes
+
+    buildingsData.forEach((building) => {
       const buildingIcon = L.icon({
         iconUrl: MackersImage,
         iconSize: [28, 28],
@@ -454,7 +497,8 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
 
       buildingMarkersRef.current.push(marker);
     });
-    
+
+    // Marcar que los marcadores están listos
     setMarkersReady(true);
     console.log('✅ Marcadores de edificios creados:', buildingMarkersRef.current.length);
   };
@@ -490,7 +534,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
       setIsTracking(false);
     } else {
       setError(null);
-      
+
       try {
         const location = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
@@ -548,7 +592,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
   // FUNCIÓN PRINCIPAL: Calcular ruta SOLO con red de nodos
   const calculateRouteToBuilding = async (building, currentUserLocation) => {
     const buildingName = building.name || `Edificio ${building.id}`;
-    
+
     try {
       // Limpiar rutas anteriores
       if (currentRouteRef.current) {
@@ -556,9 +600,9 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
       }
 
       mapInstance.current.eachLayer((layer) => {
-        if (layer instanceof L.Polyline && 
-            (layer.options.color === '#4285F4' || layer.options.color === '#00FF00' || layer.options.color === '#FF9800') &&
-            layer !== routeManager.routeLayer) {
+        if (layer instanceof L.Polyline &&
+          layer.options.color === '#4285F4' &&  // Solo eliminar rutas azules
+          layer !== routeManager.routeLayer) {   // Mantener las rutas predefinidas
           mapInstance.current.removeLayer(layer);
         }
       });
@@ -617,7 +661,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
 
       // Mostrar información de la ruta
       const locationSource = currentUserLocation.manual ? " (ubicación manual)" : " (GPS)";
-      const routeInfo = 
+      const routeInfo =
         `🎯 Ruta a ${buildingName}\n\n` +
         `📏 Distancia: ${result.distance}\n` +
         `⏱️ Tiempo estimado: ${result.duration}\n` +
@@ -631,7 +675,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
 
       setSelectedBuilding(null);
       setError('✅ Ruta calculada exitosamente');
-      
+
       setTimeout(() => {
         setError(null);
       }, 3000);
@@ -652,7 +696,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
       const useManual = confirm(
         "No se ha establecido tu ubicación. ¿Quieres usar la ubicación manual para calcular la ruta?"
       );
-      
+
       if (useManual) {
         setSelectedBuilding(building);
         onManualLocationModalClose();
@@ -710,27 +754,41 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
   // UseEffect para enfocar edificio desde el buscador
   useEffect(() => {
     if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
-      console.log('🔍 Edificio seleccionado desde búsqueda:', selectedBuildingFromSearch.name);
-      
+      console.log('Selected building from search:', selectedBuildingFromSearch);
+      console.log('Markers available:', buildingMarkersRef.current.length);
+
       const { lat, lng } = selectedBuildingFromSearch.position;
-      
+
+      // Buscar el marcador correspondiente primero
       const marker = buildingMarkersRef.current.find(
         m => m.buildingId === selectedBuildingFromSearch.id
       );
       
       if (marker) {
+        console.log('Found marker, opening popup for:', selectedBuildingFromSearch.name);
+
+        // Centrar el mapa en el edificio
         mapInstance.current.setView([lat, lng], 18);
-        
+
+        // Esperar a que el mapa se centre y luego abrir el popup
         setTimeout(() => {
           try {
             marker.openPopup();
             setSelectedBuilding(selectedBuildingFromSearch);
+            console.log('Popup opened successfully');
+          
           } catch (error) {
             console.error('Error abriendo popup:', error);
           }
+          
         }, 500);
+        
+      } else {
+        console.warn('Marker not found for building:', selectedBuildingFromSearch);
+        console.log('Available marker IDs:', buildingMarkersRef.current.map(m => m.buildingId));
       }
     }
+
   }, [selectedBuildingFromSearch, markersReady]);
 
   return (
@@ -770,7 +828,7 @@ const OpenStreetMapComponent = ({ selectedBuildingFromSearch, showManualLocation
           maxWidth: '80%'
         }}>
           <span>{error}</span>
-          <button 
+          <button
             onClick={() => setError(null)}
             style={{
               background: 'transparent',
