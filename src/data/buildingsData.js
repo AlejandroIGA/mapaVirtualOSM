@@ -15,57 +15,88 @@ const IMAGE_MAP = {
     AuditorioImg
 };
 
-// 🔄 Función para cargar edificios con su personal
-export const fetchBuildingsWithStaff = async () => {
-    try {
-        const buildingsSnapshot = await getDocs(collection(db, 'edificio'));
-        console.log("📄 Total documentos encontrados:", buildingsSnapshot.docs.length);
+// 🔄 Función para cargar solo edificios (sin personal)
+export const fetchBuildings = async () => {
+  try {
+    const buildingsSnapshot = await getDocs(collection(db, 'edificio'));
+    console.log("📄 Total edificios encontrados:", buildingsSnapshot.docs.length);
 
-        if (buildingsSnapshot.docs.length === 0) {
-            console.warn("⚠️ No se encontraron edificios en la colección 'edificios'");
-            return [];
-        }
-
-        const buildings = await Promise.all(
-            buildingsSnapshot.docs.map(async (doc) => {
-                const building = doc.data();
-                const buildingId = doc.id;
-
-
-                // Obtener personal del edificio
-                const staffSnapshot = await getDocs(
-                    query(collection(db, 'personal'), where('academic_division', '==', building.name))
-                );
-
-                const staff = staffSnapshot.docs.map((staffDoc) => {
-                    const { name, role, shift } = staffDoc.data();
-                    return {
-                        name,
-                        position: role,
-                        shift
-                    };
-                });
-
-                return {
-                    id: buildingId,
-                    name: building.name,
-                    position: typeof building.position === 'string'
-                        ? JSON.parse(building.position.replace(/(\w+):/g, '"$1":'))
-                        : building.position,
-                    image: IMAGE_MAP[building.image] || '',
-                    staff
-                };
-            })
-        );
-
-
-        return buildings;
-
-    } catch (error) {
-        console.error("❌ Error al obtener edificios con personal:", error);
-        return [];
+    if (buildingsSnapshot.docs.length === 0) {
+      console.warn("⚠️ No se encontraron edificios");
+      return [];
     }
+
+    const buildings = buildingsSnapshot.docs.map((doc) => {
+      const building = doc.data();
+      const buildingId = doc.id;
+
+      return {
+        id: buildingId,
+        name: building.name,
+        position: typeof building.position === 'string'
+          ? JSON.parse(building.position.replace(/(\w+):/g, '"$1":'))
+          : building.position,
+        image: IMAGE_MAP[building.image] || ''
+      };
+    });
+
+    return buildings;
+  } catch (error) {
+    console.error("❌ Error al obtener edificios:", error);
+    return [];
+  }
 };
+
+// 🔄 Función para obtener personal según el nombre del edificio
+export const fetchStaffByBuildingName = async (buildingName) => {
+  try {
+    // Validar que el nombre del edificio esté definido
+    if (typeof buildingName !== 'string' || buildingName.trim() === '') {
+      console.warn("⚠️ No se puede buscar personal porque el nombre del edificio es inválido:", buildingName);
+      return [];
+    }
+
+    const staffSnapshot = await getDocs(
+      query(
+        collection(db, 'personal'),
+        where('academic_division', '==', buildingName)
+      )
+    );
+
+    return staffSnapshot.docs.map((doc) => {
+      const { name, role, shift } = doc.data();
+      return {
+        name,
+        position: role,
+        shift
+      };
+    });
+
+  } catch (error) {
+    console.error(`❌ Error al obtener personal para el edificio ${buildingName}:`, error);
+    return [];
+  }
+};
+// 🔄 Cargar edificio del personal
+export const fetchAllStaff = async () => {
+  try {
+    const staffSnapshot = await getDocs(collection(db, 'personal'));
+    return staffSnapshot.docs.map(doc => {
+      const { name, role, shift, academic_division } = doc.data();
+      return {
+        name,
+        position: role,
+        shift,
+        buildingName: academic_division
+      };
+    });
+  } catch (error) {
+    console.error("❌ Error al obtener todo el personal:", error);
+    return [];
+  }
+};
+
+
 // 🗺️ Configuración del mapa para Leaflet + OSM
 export const MAP_CONFIG = {
     center: [20.572976640827633, -100.419786585765], // [lat, lng] para Leaflet
