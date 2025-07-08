@@ -72,10 +72,18 @@ const SearchBar = ({ onSelectBuilding }) => {
   const handleSuggestionClick = (item) => {
     if (searchType === 'building') {
       setSearchTerm(item.name);
-      onSelectBuilding?.(item);
+      // Timestamp único para forzar re-render
+      onSelectBuilding?.({
+        ...item,
+        searchTimestamp: Date.now()
+      });
     } else if (searchType === 'staff') {
       setSearchTerm(item.staff.name);
-      onSelectBuilding?.(item.building);
+      // Timestamp único para forzar re-render
+      onSelectBuilding?.({
+        ...item.building,
+        searchTimestamp: Date.now()
+      });
     }
     setIsFocused(false);
   };

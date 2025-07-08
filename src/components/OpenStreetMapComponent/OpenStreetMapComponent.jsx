@@ -848,48 +848,48 @@ const OpenStreetMapComponent = ({
 
   // UseEffect para enfocar edificio desde el buscador
   useEffect(() => {
-    if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
-      console.log("Selected building from search:", selectedBuildingFromSearch);
-      console.log("Markers available:", buildingMarkersRef.current.length);
+  if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
+    console.log("Selected building from search:", selectedBuildingFromSearch);
+    console.log("Markers available:", buildingMarkersRef.current.length);
 
-      const { lat, lng } = selectedBuildingFromSearch.position;
+    const { lat, lng } = selectedBuildingFromSearch.position;
 
-      // Buscar el marcador correspondiente primero
-      const marker = buildingMarkersRef.current.find(
-        (m) => m.buildingId === selectedBuildingFromSearch.id
+    // Buscar el marcador correspondiente primero
+    const marker = buildingMarkersRef.current.find(
+      (m) => m.buildingId === selectedBuildingFromSearch.id
+    );
+
+    if (marker) {
+      console.log(
+        "Found marker, opening popup for:",
+        selectedBuildingFromSearch.name
       );
 
-      if (marker) {
-        console.log(
-          "Found marker, opening popup for:",
-          selectedBuildingFromSearch.name
-        );
+      // Centrar el mapa en el edificio
+      mapInstance.current.setView([lat, lng], 18);
 
-        // Centrar el mapa en el edificio
-        mapInstance.current.setView([lat, lng], 18);
-
-        // Esperar a que el mapa se centre y luego abrir el popup
-        setTimeout(() => {
-          try {
-            marker.openPopup();
-            setSelectedBuilding(selectedBuildingFromSearch);
-            console.log("Popup opened successfully");
-          } catch (error) {
-            console.error("Error abriendo popup:", error);
-          }
-        }, 500);
-      } else {
-        console.warn(
-          "Marker not found for building:",
-          selectedBuildingFromSearch
-        );
-        console.log(
-          "Available marker IDs:",
-          buildingMarkersRef.current.map((m) => m.buildingId)
-        );
-      }
+      // Esperar a que el mapa se centre y luego abrir el popup
+      setTimeout(() => {
+        try {
+          marker.openPopup();
+          setSelectedBuilding(selectedBuildingFromSearch);
+          console.log("Popup opened successfully");
+        } catch (error) {
+          console.error("Error abriendo popup:", error);
+        }
+      }, 500);
+    } else {
+      console.warn(
+        "Marker not found for building:",
+        selectedBuildingFromSearch
+      );
+      console.log(
+        "Available marker IDs:",
+        buildingMarkersRef.current.map((m) => m.buildingId)
+      );
     }
-  }, [selectedBuildingFromSearch, markersReady]);
+  }
+}, [selectedBuildingFromSearch?.searchTimestamp, markersReady]);
 
   return (
     <div className="openstreetmap-container">
