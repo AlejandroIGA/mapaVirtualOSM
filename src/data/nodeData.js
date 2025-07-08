@@ -48,7 +48,7 @@ let nodeData = {
         },
         {
           "id_vecino": "1751829723388",
-          "peso": "36.85"
+          "peso": "43.60"
         }
       ]
     },
@@ -84,7 +84,7 @@ let nodeData = {
         },
         {
           "id_vecino": "1751829612423",
-          "peso": "24.34"
+          "peso": "29.52"
         }
       ]
     },
@@ -112,7 +112,7 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751734750722",
-          "peso": "22.08"
+          "peso": "23.94"
         }
       ]
     },
@@ -164,7 +164,7 @@ let nodeData = {
         },
         {
           "id_vecino": "1751734750722",
-          "peso": "21.72"
+          "peso": "16.46"
         },
         {
           "id_vecino": "1751743948366",
@@ -199,20 +199,20 @@ let nodeData = {
     {
       "id": "1751734750722",
       "nombre": "frente_edificio_i",
-      "latitud": 20.65474065473292,
-      "longitud": -100.40440213729192,
+      "latitud": 20.654728383325292,
+      "longitud": -100.40434780637459,
       "vecinos": [
         {
           "id_vecino": "1751734706648",
-          "peso": "21.72"
+          "peso": "16.46"
         },
         {
           "id_vecino": "1751734638651",
-          "peso": "22.08"
+          "peso": "23.94"
         },
         {
           "id_vecino": "1751740078851",
-          "peso": "24.09"
+          "peso": "29.34"
         }
       ]
     },
@@ -264,7 +264,7 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751740295806",
-          "peso": "37.87"
+          "peso": "40.18"
         },
         {
           "id_vecino": "1751740055588",
@@ -291,20 +291,20 @@ let nodeData = {
     {
       "id": "1751740078851",
       "nombre": "atajo_edifio_i_cafeteria",
-      "latitud": 20.654668847170527,
-      "longitud": -100.40463207966287,
+      "latitud": 20.654682871641924,
+      "longitud": -100.40463770010254,
       "vecinos": [
         {
           "id_vecino": "1751734750722",
-          "peso": "24.09"
+          "peso": "29.34"
         },
         {
           "id_vecino": "1751740112852",
-          "peso": "17.30"
+          "peso": "16.15"
         },
         {
           "id_vecino": "1751740133657",
-          "peso": "42.03"
+          "peso": "42.66"
         }
       ]
     },
@@ -316,35 +316,35 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751740078851",
-          "peso": "17.30"
+          "peso": "16.15"
         },
         {
           "id_vecino": "1751740212410",
-          "peso": "13.20"
+          "peso": "14.31"
         }
       ]
     },
     {
       "id": "1751740133657",
       "nombre": "cafeteria_cruce_1",
-      "latitud": 20.65457311105594,
-      "longitud": -100.405041329165,
+      "latitud": 20.654577252926984,
+      "longitud": -100.40505100534773,
       "vecinos": [
         {
           "id_vecino": "1751740160842",
-          "peso": "14.43"
+          "peso": "13.86"
         },
         {
           "id_vecino": "1751740078851",
-          "peso": "42.03"
+          "peso": "42.66"
         },
         {
           "id_vecino": "1751740295806",
-          "peso": "47.02"
+          "peso": "51.42"
         },
         {
           "id_vecino": "1751829218872",
-          "peso": "24.52"
+          "peso": "24.08"
         }
       ]
     },
@@ -356,75 +356,75 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751740192043",
-          "peso": "10.92"
+          "peso": "11.42"
         },
         {
           "id_vecino": "1751740133657",
-          "peso": "14.43"
+          "peso": "13.86"
         },
         {
           "id_vecino": "1751829218872",
-          "peso": "22.21"
+          "peso": "23.00"
         }
       ]
     },
     {
       "id": "1751740192043",
       "nombre": "mesas_cruce_1",
-      "latitud": 20.654818434727645,
-      "longitud": -100.40510314289166,
+      "latitud": 20.654814928613263,
+      "longitud": -100.40512375117046,
       "vecinos": [
         {
           "id_vecino": "1751740212410",
-          "peso": "27.43"
+          "peso": "25.02"
         },
         {
           "id_vecino": "1751740160842",
-          "peso": "10.92"
+          "peso": "11.42"
         },
         {
           "id_vecino": "1751829794501",
-          "peso": "24.85"
+          "peso": "26.64"
         }
       ]
     },
     {
       "id": "1751740212410",
       "nombre": "mesas_cruce_lateral_derecho",
-      "latitud": 20.65487428061435,
-      "longitud": -100.40483457281486,
+      "latitud": 20.654860256160347,
+      "longitud": -100.40487766285287,
       "vecinos": [
         {
           "id_vecino": "1751740112852",
-          "peso": "13.20"
+          "peso": "14.31"
         },
         {
           "id_vecino": "1751740192043",
-          "peso": "27.43"
+          "peso": "25.02"
         },
         {
           "id_vecino": "1751829777230",
-          "peso": "24.19"
+          "peso": "27.19"
         }
       ]
     },
     {
       "id": "1751740295806",
       "nombre": "cruce_central_1",
-      "latitud": 20.654115134740252,
-      "longitud": -100.40493490280555,
+      "latitud": 20.65407306116542,
+      "longitud": -100.40494989064467,
       "vecinos": [
         {
           "id_vecino": "1751740133657",
-          "peso": "47.02"
+          "peso": "51.42"
         },
         {
           "id_vecino": "1751740031754",
-          "peso": "37.87"
+          "peso": "40.18"
         },
         {
           "id_vecino": "1751829370339",
-          "peso": "18.07"
+          "peso": "10.71"
         }
       ]
     },
@@ -528,7 +528,7 @@ let nodeData = {
         },
         {
           "id_vecino": "1751828726116",
-          "peso": "39.66"
+          "peso": "39.67"
         }
       ]
     },
@@ -819,20 +819,20 @@ let nodeData = {
     {
       "id": "1751828726116",
       "nombre": "frente_nano",
-      "latitud": 20.656062243693512,
-      "longitud": -100.40476416390749,
+      "latitud": 20.656115460392442,
+      "longitud": -100.40477838210303,
       "vecinos": [
         {
           "id_vecino": "1751828768995",
-          "peso": "29.35"
+          "peso": "30.70"
         },
         {
           "id_vecino": "1751828751225",
-          "peso": "21.23"
+          "peso": "26.74"
         },
         {
           "id_vecino": "1751744042181",
-          "peso": "39.66"
+          "peso": "39.67"
         }
       ]
     },
@@ -844,27 +844,31 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751828726116",
-          "peso": "21.23"
+          "peso": "26.74"
         }
       ]
     },
     {
       "id": "1751828768995",
       "nombre": "entrada_canchas",
-      "latitud": 20.65604817706884,
-      "longitud": -100.40505730788946,
+      "latitud": 20.656071459378992,
+      "longitud": -100.40508218973169,
       "vecinos": [
         {
           "id_vecino": "1751828916663",
-          "peso": "60.05"
+          "peso": "61.25"
         },
         {
           "id_vecino": "1751828726116",
-          "peso": "29.35"
+          "peso": "30.70"
         },
         {
           "id_vecino": "1751828791380",
-          "peso": "15.43"
+          "peso": "14.54"
+        },
+        {
+          "id_vecino": "1751994405105",
+          "peso": "12.98"
         }
       ]
     },
@@ -876,7 +880,7 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751828768995",
-          "peso": "15.43"
+          "peso": "14.54"
         },
         {
           "id_vecino": "1751828820512",
@@ -956,11 +960,11 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751829794501",
-          "peso": "46.35"
+          "peso": "44.11"
         },
         {
           "id_vecino": "1751828768995",
-          "peso": "60.05"
+          "peso": "61.25"
         },
         {
           "id_vecino": "1751828894892",
@@ -971,16 +975,16 @@ let nodeData = {
     {
       "id": "1751828937704",
       "nombre": "inicio_sendero",
-      "latitud": 20.655012566214097,
-      "longitud": -100.40521921755013,
+      "latitud": 20.655065157855546,
+      "longitud": -100.40524357278868,
       "vecinos": [
         {
           "id_vecino": "1751828955823",
-          "peso": "16.54"
+          "peso": "15.18"
         },
         {
           "id_vecino": "1751829794501",
-          "peso": "9.01"
+          "peso": "5.82"
         }
       ]
     },
@@ -996,11 +1000,11 @@ let nodeData = {
         },
         {
           "id_vecino": "1751828937704",
-          "peso": "16.54"
+          "peso": "15.18"
         },
         {
           "id_vecino": "1751829218872",
-          "peso": "38.56"
+          "peso": "38.73"
         }
       ]
     },
@@ -1075,40 +1079,44 @@ let nodeData = {
     {
       "id": "1751829218872",
       "nombre": "interseccion_cafe",
-      "latitud": 20.654638527259294,
-      "longitud": -100.40527763784523,
+      "latitud": 20.65463486695222,
+      "longitud": -100.4052847611277,
       "vecinos": [
         {
           "id_vecino": "1751828955823",
-          "peso": "38.56"
+          "peso": "38.73"
         },
         {
           "id_vecino": "1751740160842",
-          "peso": "22.21"
+          "peso": "23.00"
         },
         {
           "id_vecino": "1751740133657",
-          "peso": "24.52"
+          "peso": "24.08"
         },
         {
           "id_vecino": "1751829239385",
-          "peso": "33.00"
+          "peso": "32.38"
         }
       ]
     },
     {
       "id": "1751829239385",
       "nombre": "norte_rectoria",
-      "latitud": 20.654571710154556,
-      "longitud": -100.40560084787724,
+      "latitud": 20.65456951397212,
+      "longitud": -100.40560191822863,
       "vecinos": [
         {
           "id_vecino": "1751829218872",
-          "peso": "33.00"
+          "peso": "32.38"
         },
         {
           "id_vecino": "1751829456633",
-          "peso": "11.56"
+          "peso": "12.47"
+        },
+        {
+          "id_vecino": "1751829267017",
+          "peso": "34.64"
         }
       ]
     },
@@ -1125,90 +1133,98 @@ let nodeData = {
         {
           "id_vecino": "1751828955823",
           "peso": "30.63"
+        },
+        {
+          "id_vecino": "1751829239385",
+          "peso": "34.64"
         }
       ]
     },
     {
       "id": "1751829299504",
       "nombre": "interseccion_hub_rectoria",
-      "latitud": 20.653965634620036,
-      "longitud": -100.40561394190316,
+      "latitud": 20.653983165289887,
+      "longitud": -100.40562892974225,
       "vecinos": [
         {
           "id_vecino": "1751829434720",
-          "peso": "20.27"
+          "peso": "18.33"
         },
         {
           "id_vecino": "1751829328617",
-          "peso": "40.02"
+          "peso": "34.42"
+        },
+        {
+          "id_vecino": "1751994353284",
+          "peso": "28.46"
         }
       ]
     },
     {
       "id": "1751829328617",
       "nombre": "interseccion_auxiliar",
-      "latitud": 20.654032451991185,
-      "longitud": -100.40521932500434,
+      "latitud": 20.654020180526885,
+      "longitud": -100.4052867702809,
       "vecinos": [
         {
           "id_vecino": "1751829299504",
-          "peso": "40.02"
+          "peso": "34.42"
         },
         {
           "id_vecino": "1751829350360",
-          "peso": "14.92"
+          "peso": "14.11"
         }
       ]
     },
     {
       "id": "1751829350360",
       "nombre": "frente_edificio_c",
-      "latitud": 20.653905850631475,
-      "longitud": -100.40514040162458,
+      "latitud": 20.653930393579785,
+      "longitud": -100.40517787122234,
       "vecinos": [
         {
           "id_vecino": "1751829328617",
-          "peso": "14.92"
+          "peso": "14.11"
         },
         {
           "id_vecino": "1751829370339",
-          "peso": "27.76"
+          "peso": "25.67"
         }
       ]
     },
     {
       "id": "1751829370339",
       "nombre": "interseccion_auxiliar_2",
-      "latitud": 20.653948051096435,
-      "longitud": -100.40486604892293,
+      "latitud": 20.653969087901757,
+      "longitud": -100.40492412680007,
       "vecinos": [
         {
-          "id_vecino": "1751829638469",
-          "peso": "25.34"
-        },
-        {
           "id_vecino": "1751740295806",
-          "peso": "18.07"
+          "peso": "10.71"
         },
         {
           "id_vecino": "1751829350360",
-          "peso": "27.76"
+          "peso": "25.67"
+        },
+        {
+          "id_vecino": "1751995866081",
+          "peso": "25.84"
         }
       ]
     },
     {
       "id": "1751829390684",
       "nombre": "frente_rectoria",
-      "latitud": 20.65426807098136,
-      "longitud": -100.40565904113316,
+      "latitud": 20.654262811790133,
+      "longitud": -100.40568901681138,
       "vecinos": [
         {
           "id_vecino": "1751829456633",
-          "peso": "27.58"
+          "peso": "27.31"
         },
         {
           "id_vecino": "1751829434720",
-          "peso": "10.31"
+          "peso": "10.27"
         }
       ]
     },
@@ -1217,37 +1233,50 @@ let nodeData = {
       "nombre": "frente_hub",
       "latitud": 20.6540887193009,
       "longitud": -100.40603862500784,
-      "vecinos": []
+      "vecinos": [
+        {
+          "id_vecino": "1751829434720",
+          "peso": "37.94"
+        },
+        {
+          "id_vecino": "1751829694668",
+          "peso": "55.24"
+        }
+      ]
     },
     {
       "id": "1751829434720",
       "nombre": "interseccion_auxiliar_3",
-      "latitud": 20.65416608671903,
-      "longitud": -100.40564400810844,
+      "latitud": 20.654162580589457,
+      "longitud": -100.40566648986767,
       "vecinos": [
         {
           "id_vecino": "1751829390684",
-          "peso": "10.31"
+          "peso": "10.27"
         },
         {
           "id_vecino": "1751829299504",
-          "peso": "20.27"
+          "peso": "18.33"
+        },
+        {
+          "id_vecino": "1751829408518",
+          "peso": "37.94"
         }
       ]
     },
     {
       "id": "1751829456633",
       "nombre": "interseccion_auxiliar_4",
-      "latitud": 20.65453885644925,
-      "longitud": -100.40571165671967,
+      "latitud": 20.654533982514494,
+      "longitud": -100.40572143582975,
       "vecinos": [
         {
           "id_vecino": "1751829239385",
-          "peso": "11.56"
+          "peso": "12.47"
         },
         {
           "id_vecino": "1751829390684",
-          "peso": "27.58"
+          "peso": "27.31"
         }
       ]
     },
@@ -1266,32 +1295,40 @@ let nodeData = {
     {
       "id": "1751829612423",
       "nombre": "laboratorio_industrial_no_mantenimiento",
-      "latitud": 20.653789836378706,
-      "longitud": -100.40441514049508,
+      "latitud": 20.653786176876793,
+      "longitud": -100.40446728525966,
       "vecinos": [
         {
           "id_vecino": "1751734592379",
-          "peso": "24.34"
+          "peso": "29.52"
         },
         {
           "id_vecino": "1751829638469",
-          "peso": "40.06"
+          "peso": "30.02"
+        },
+        {
+          "id_vecino": "1751994161684",
+          "peso": "13.08"
         }
       ]
     },
     {
       "id": "1751829638469",
       "nombre": "interseccion_auxiliar_5",
-      "latitud": 20.653701918638575,
-      "longitud": -100.40480599913772,
+      "latitud": 20.65372753516489,
+      "longitud": -100.40476167608776,
       "vecinos": [
         {
           "id_vecino": "1751829612423",
-          "peso": "40.06"
+          "peso": "30.02"
         },
         {
-          "id_vecino": "1751829370339",
-          "peso": "25.34"
+          "id_vecino": "1751995866081",
+          "peso": "9.30"
+        },
+        {
+          "id_vecino": "1751994140007",
+          "peso": "14.17"
         }
       ]
     },
@@ -1312,17 +1349,30 @@ let nodeData = {
       "nombre": "auxiliar_estacionamiento_noroeste",
       "latitud": 20.654120488388003,
       "longitud": -100.40659014110149,
-      "vecinos": []
+      "vecinos": [
+        {
+          "id_vecino": "1751829408518",
+          "peso": "55.24"
+        }
+      ]
     },
     {
       "id": "1751829723388",
       "nombre": "auxiliar_estacionamiento_sur",
-      "latitud": 20.653588,
-      "longitud": -100.40449625951126,
+      "latitud": 20.653538913989564,
+      "longitud": -100.40455808434817,
       "vecinos": [
         {
           "id_vecino": "1751734532684",
-          "peso": "36.85"
+          "peso": "43.60"
+        },
+        {
+          "id_vecino": "1751994182269",
+          "peso": "8.06"
+        },
+        {
+          "id_vecino": "1751994300713",
+          "peso": "75.48"
         }
       ]
     },
@@ -1346,55 +1396,55 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751829794501",
-          "peso": "9.40"
+          "peso": "13.32"
         },
         {
           "id_vecino": "1751829777230",
-          "peso": "17.37"
+          "peso": "13.18"
         }
       ]
     },
     {
       "id": "1751829777230",
       "nombre": "aux",
-      "latitud": 20.655111596742515,
-      "longitud": -100.40488165015473,
+      "latitud": 20.655127374228016,
+      "longitud": -100.40492848715252,
       "vecinos": [
         {
           "id_vecino": "1751829762686",
-          "peso": "17.37"
+          "peso": "13.18"
         },
         {
           "id_vecino": "1751740212410",
-          "peso": "24.19"
+          "peso": "27.19"
         },
         {
           "id_vecino": "1751829813419",
-          "peso": "38.96"
+          "peso": "43.35"
         }
       ]
     },
     {
       "id": "1751829794501",
       "nombre": "aux_2",
-      "latitud": 20.655063417514043,
-      "longitud": -100.40514481560392,
+      "latitud": 20.65507393584008,
+      "longitud": -100.40518603216205,
       "vecinos": [
         {
           "id_vecino": "1751740192043",
-          "peso": "24.85"
+          "peso": "26.64"
         },
         {
           "id_vecino": "1751828916663",
-          "peso": "46.35"
+          "peso": "44.11"
         },
         {
           "id_vecino": "1751828937704",
-          "peso": "9.01"
+          "peso": "5.82"
         },
         {
           "id_vecino": "1751829762686",
-          "peso": "9.40"
+          "peso": "13.32"
         }
       ]
     },
@@ -1406,11 +1456,171 @@ let nodeData = {
       "vecinos": [
         {
           "id_vecino": "1751829777230",
-          "peso": "38.96"
+          "peso": "43.35"
         },
         {
           "id_vecino": "1751743948366",
           "peso": "26.45"
+        }
+      ]
+    },
+    {
+      "id": "1751994140007",
+      "nombre": "u_izq",
+      "latitud": 20.6536,
+      "longitud": -100.4047,
+      "vecinos": [
+        {
+          "id_vecino": "1751829638469",
+          "peso": "14.17"
+        },
+        {
+          "id_vecino": "1751994182269",
+          "peso": "12.77"
+        }
+      ]
+    },
+    {
+      "id": "1751994161684",
+      "nombre": "u_drc",
+      "latitud": 20.65366027815824,
+      "longitud": -100.40443173935813,
+      "vecinos": [
+        {
+          "id_vecino": "1751994182269",
+          "peso": "14.80"
+        },
+        {
+          "id_vecino": "1751829612423",
+          "peso": "13.08"
+        }
+      ]
+    },
+    {
+      "id": "1751994182269",
+      "nombre": "u_aux",
+      "latitud": 20.653617978478238,
+      "longitud": -100.40457360221787,
+      "vecinos": [
+        {
+          "id_vecino": "1751994140007",
+          "peso": "12.77"
+        },
+        {
+          "id_vecino": "1751994161684",
+          "peso": "14.80"
+        },
+        {
+          "id_vecino": "1751829723388",
+          "peso": "8.06"
+        }
+      ]
+    },
+    {
+      "id": "1751994300713",
+      "nombre": "sendero_estacionamiento",
+      "latitud": 20.6534,
+      "longitud": -100.4053,
+      "vecinos": [
+        {
+          "id_vecino": "1751829723388",
+          "peso": "75.48"
+        },
+        {
+          "id_vecino": "1751994318509",
+          "peso": "24.51"
+        }
+      ]
+    },
+    {
+      "id": "1751994318509",
+      "nombre": "estacionamiento_suroeste",
+      "latitud": 20.653434885392784,
+      "longitud": -100.40554257002995,
+      "vecinos": [
+        {
+          "id_vecino": "1751994300713",
+          "peso": "24.51"
+        },
+        {
+          "id_vecino": "1751994353284",
+          "peso": "27.13"
+        }
+      ]
+    },
+    {
+      "id": "1751994353284",
+      "nombre": "pasillo_estacionamiento_suroeste",
+      "latitud": 20.6537,
+      "longitud": -100.4056,
+      "vecinos": [
+        {
+          "id_vecino": "1751994318509",
+          "peso": "27.13"
+        },
+        {
+          "id_vecino": "1751829299504",
+          "peso": "28.46"
+        }
+      ]
+    },
+    {
+      "id": "1751994405105",
+      "nombre": "frente_primera_cancha",
+      "latitud": 20.6562,
+      "longitud": -100.4051,
+      "vecinos": [
+        {
+          "id_vecino": "1751828768995",
+          "peso": "12.98"
+        },
+        {
+          "id_vecino": "1751994425096",
+          "peso": "20.00"
+        },
+        {
+          "id_vecino": "1751994446517",
+          "peso": "72.80"
+        }
+      ]
+    },
+    {
+      "id": "1751994425096",
+      "nombre": "primera_cancha",
+      "latitud": 20.6562,
+      "longitud": -100.4053,
+      "vecinos": [
+        {
+          "id_vecino": "1751994405105",
+          "peso": "20.00"
+        }
+      ]
+    },
+    {
+      "id": "1751994446517",
+      "nombre": "segunda_cancha",
+      "latitud": 20.6569,
+      "longitud": -100.4053,
+      "vecinos": [
+        {
+          "id_vecino": "1751994405105",
+          "peso": "72.80"
+        }
+      ]
+    },
+    {
+      "id": "1751995866081",
+      "nombre": "interseccion_auxiliar_?",
+      "latitud": 20.653720275870512,
+      "longitud": -100.40485442927472,
+      "vecinos": [
+        {
+          "id_vecino": "1751829638469",
+          "peso": "9.30"
+        },
+        {
+          "id_vecino": "1751829370339",
+          "peso": "25.84"
         }
       ]
     }

@@ -1,34 +1,1251 @@
 {
-    "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {},
-                "geometry": {
-                    "coordinates": [
-                        [
-                            -100.40415179669552,
-                            20.653811507811653
-                        ],
-                        [
-                            -100.404208814502,
-                            20.654115213513236
-                        ],
-                        [
-                            -100.40430551882748,
-                            20.65420268602358
-                        ],
-                        [
-                            -100.40455695007364,
-                            20.65417252309406
-                        ],
-                        [
-                            -100.40458596137103,
-                            20.654305239933407
-                        ]
-                    ],
-                    "type": "LineString"
-                }
-            }
-        ]
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "u_derecha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40443173935813,
+          20.65366027815824
+        ],
+        "type": "Point"
+      },
+      "id": 0
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "u_izquierda"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40468521366431,
+          20.653602844531093
+        ],
+        "type": "Point"
+      },
+      "id": 1
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "u_auxiliar"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40457360221787,
+          20.653617978478238
+        ],
+        "type": "Point"
+      },
+      "id": 2
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sendero_estacionamiento_sur"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40527292334055,
+          20.653400362031164
+        ],
+        "type": "Point"
+      },
+      "id": 3
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "estacionamiento_suroeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40554257002995,
+          20.653434885392784
+        ],
+        "type": "Point"
+      },
+      "id": 4
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pasillo_estacionamiento_suroeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40561888965411,
+          20.65374171760017
+        ],
+        "type": "Point"
+      },
+      "id": 5
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_canchas"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40508218973169,
+          20.656071459378992
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_primera_cancha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4051198408789,
+          20.656247672209076
+        ],
+        "type": "Point"
+      },
+      "id": 7
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "primera_cancha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4053403331502,
+          20.65621457347011
+        ],
+        "type": "Point"
+      },
+      "id": 8
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "segunda_cancha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40527044786654,
+          20.656882397557922
+        ],
+        "type": "Point"
+      },
+      "id": 9
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_9"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40417602357223,
+          20.654751859868085
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_8"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40413559240714,
+          20.654597048268656
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edificio_i"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40434780637459,
+          20.654728383325292
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "edificio_f"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40406547632489,
+          20.654417451971824
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_biblioteca"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40373115490979,
+          20.654797992426026
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edifico_k"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40456042835233,
+          20.654171713264617
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "atajo_edificio_i_cafeteria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40463770010254,
+          20.654682871641924
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cafeteria_cruce_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40505100534773,
+          20.654577252926984
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_cafeteria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40508256483707,
+          20.654680333713657
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mesas_cruce_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40512375117046,
+          20.654814928613263
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mesas_cruce_lateral_derecho"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40487766285287,
+          20.654860256160347
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cruce_central_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40494989064467,
+          20.65407306116542
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "canchas_auditorio"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40519636336809,
+          20.65598136058381
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "canchas_auditorio_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40554963944952,
+          20.65576332763888
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auditorio_derecha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40572251923375,
+          20.655731677669294
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auditorio_derecha_camino"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40567742015959,
+          20.655534744376922
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sendero_interseccion"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40530159454168,
+          20.65549957768971
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edificio_j"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40539582170193,
+          20.655030086193065
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auditorio_izquierda_camino"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40587315412645,
+          20.655490833982853
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auditorio_izquierda_camino_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40588818715116,
+          20.655346650476076
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "norte_rectoria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40560191822863,
+          20.65456951397212
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sur_edificio_j"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4056982093544,
+          20.654971424333326
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_hub_rectoria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40562892974225,
+          20.653983165289887
+        ],
+        "type": "Point"
+      },
+      "id": 32
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_hub"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40603862500784,
+          20.6540887193009
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar_3"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40566648986767,
+          20.654162580589457
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auxiliar_estacionamiento_noroeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40659014110149,
+          20.654120488388003
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "aux"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40492848715252,
+          20.655127374228016
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "aux_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40518603216205,
+          20.65507393584008
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40402820254181,
+          20.65314543912754
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4041422339225,
+          20.65366265774233
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40412867527479,
+          20.653614446268506
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_4"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40418797225055,
+          20.653891365366377
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_3"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40417712533288,
+          20.653840616522572
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_5"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40423678338256,
+          20.654129884704673
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "edificio_j"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40440213729192,
+          20.654961491523437
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_6"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4043321277924,
+          20.65420124122879
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_cruce_7"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40441597740468,
+          20.654539600832706
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "biblioteca"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4037521446754,
+          20.654959956375833
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "edificio_k"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40460092700059,
+          20.654365180443747
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "atajo_edificio_i_cafeteria_continuacion"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40478341671802,
+          20.654752616220108
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cruece_calle_derecha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40424473797385,
+          20.655256442056086
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "conexion_cruce_calle_derecha"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4041726717148,
+          20.655276672208217
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cruce_edificio_g"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40426218955137,
+          20.65563698716123
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edificio_g"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40390962969214,
+          20.65572510649531
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "edificio_g"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40385197665958,
+          20.655505946987688
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cruce_central_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40439348662377,
+          20.656183199029073
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cruce_peugeot"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4041114155547,
+          20.656252736147295
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "peugeot"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40361055495767,
+          20.656357257986045
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40388801017775,
+          20.656482009661374
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4039095612327,
+          20.656738386087042
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_3"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40377263528019,
+          20.656879995733604
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_4"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40369336236023,
+          20.65695754381747
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4035780562946,
+          20.657169957931487
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_lateral_derecho"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40320957266572,
+          20.65724365914086
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_lateral_derecho_continuacion"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40313390306034,
+          20.657530249002193
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "intel_pidet"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40333568867453,
+          20.65765837135467
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40349783782901,
+          20.65768871610608
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_1"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40363836709608,
+          20.65760105347303
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40365278035436,
+          20.657523505718444
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_3"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40386897922683,
+          20.657472931073173
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_4"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40377168973454,
+          20.65727737562348
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_5"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40386897922683,
+          20.657179597803818
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pidet_6"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40387978927356,
+          20.656919980647743
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_nano"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40477838210303,
+          20.656115460392442
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_principal_nano"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40471906483333,
+          20.655854760847433
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auditorio_izquierda"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4058878825062,
+          20.655689477699582
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "inicio_sendero"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40524357278868,
+          20.655065157855546
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sendero_auditorio_izquierda"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4057942081533,
+          20.654947417767062
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_idiomas"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40621479331216,
+          20.654861713149415
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_cafe"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4052847611277,
+          20.65463486695222
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4052867702809,
+          20.654020180526885
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edificio_c"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40517787122234,
+          20.653930393579785
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar_2"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40492412680007,
+          20.653969087901757
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_rectoria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40568901681138,
+          20.654262811790133
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar_4"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40572143582975,
+          20.654533982514494
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "laboratorio_industrial"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4038213360182,
+          20.653694885217178
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "laboratorio_industrial_no_mantenimiento"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40446728525966,
+          20.653786176876793
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar_5"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40476167608776,
+          20.65372753516489
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auxiliar_estacionamiento_norte"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40634413861633,
+          20.655635459551632
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auxiliar_estacionamiento_sur"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40455808434817,
+          20.653538913989564
+        ],
+        "type": "Point"
+      },
+      "id": 89
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "auxiliar_estacionamiento_oeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40704801572072,
+          20.65471246254465
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_enfermeria"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40505890023533,
+          20.65510060799403
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "frente_edificio_h"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.4045020909174,
+          20.655203978623263
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_estacionamiento_noroeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40691074580079,
+          20.6555250624925
+        ],
+        "type": "Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "entrada_estacionamiento_extremo_suroeste"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40722362389073,
+          20.653650369823794
+        ],
+        "type": "Point"
+      }
+    }
+  ]
 }
