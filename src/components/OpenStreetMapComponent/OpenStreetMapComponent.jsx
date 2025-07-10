@@ -628,6 +628,39 @@ const OpenStreetMapComponent = ({
     }
   };
 
+  // FUNCIÓN: Crear ruta directa cuando no hay conexión con nodos
+  const createDirectRoute = (currentUserLocation, building) => {
+    console.log("📍 Creando ruta directa (línea recta)");
+    
+    const start = [currentUserLocation.lat, currentUserLocation.lng];
+    const end = [building.position.lat, building.position.lng];
+    
+    const routeLine = L.polyline([start, end], {
+      color: "#FFA500", // Naranja para rutas directas
+      weight: 4,
+      opacity: 0.8,
+      dashArray: "10, 5", // Línea punteada
+      lineCap: "round",
+      lineJoin: "round",
+    }).addTo(mapInstance.current);
+
+    mapInstance.current.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+    // Calcular distancia
+    const distance = L.latLng(start).distanceTo(L.latLng(end));
+    const distanceKm = (distance / 1000).toFixed(2);
+    const walkingSpeed = 5; // km/h
+    const durationMin = Math.round((distance / 1000 / walkingSpeed) * 60);
+
+    return {
+      distance: `${distanceKm} km`,
+      duration: `${durationMin} min`,
+      routeLine: routeLine,
+      source: "Ruta directa (sin caminos)",
+      note: "⚠️ Ruta aproximada - No sigue caminos peatonales"
+    };
+  };
+
   // Calcular y mostrar ruta
   const calculateRouteToBuilding = async (building, currentUserLocation) => {
     const buildingName = building.name || `Edificio ${building.id}`;
@@ -639,15 +672,19 @@ const OpenStreetMapComponent = ({
       }
 
       let result;
+      let routeMethod = "";
 
-      // Usar sistema de nodos SOLO si está disponible y funcionando
-      if (nodesLoaded) {
-        console.log("🎯 Usando sistema de nodos para calcular ruta...");
+      // Intentar con sistema de nodos
+      if (nodesLoaded && nodeManager.nodes.size > 0) {
+        console.log("🎯 Intentando calcular ruta con sistema de nodos...");
         try {
+          // Aumentar el radio de búsqueda para nodos más lejanos
           const nodeRoute = await nodeManager.calculateRoute(
-            [currentUserLocation.lat, currentUserLocation.lng],
-            [building.position.lat, building.position.lng],
-            200
+            currentUserLocation.lat,     // Pasar números directos, no arrays
+            currentUserLocation.lng,     // Pasar números directos, no arrays
+            building.position.lat,       // Pasar números directos, no arrays
+            building.position.lng,       // Pasar números directos, no arrays
+            500 // Radio de búsqueda aumentado
           );
 
           if (nodeRoute) {
@@ -656,45 +693,63 @@ const OpenStreetMapComponent = ({
               currentUserLocation,
               building
             );
+            routeMethod = "nodos";
             console.log("✅ Ruta calculada con sistema de nodos");
           } else {
-            throw new Error(
-              "No se pudo calcular una ruta a través de la red de nodos. Verifica que el edificio esté conectado a la red."
-            );
+            throw new Error("No se encontró ruta en la red de nodos");
           }
         } catch (nodeError) {
-          console.error("❌ Error con red de nodos:", nodeError.message);
-          console.error("📊 Stack trace:", nodeError.stack);
-
-          // Solo como último recurso: OpenRouteService
-          console.log("🔄 Último recurso: OpenRouteService...");
+          console.warn("⚠️ Red de nodos no pudo calcular ruta:", nodeError.message);
+          
+          // Intentar con OpenRouteService
           try {
+            console.log("🌐 Intentando con OpenRouteService...");
             result = await calculateWithOpenRouteService(
               currentUserLocation,
               building
             );
-            console.log("⚠️ Usando OpenRouteService como último recurso");
-          } catch (openRouteError) {
-            throw new Error(
-              `No se pudo calcular ruta: ${nodeError.message}. Tampoco disponible OpenRouteService: ${openRouteError.message}`
+            routeMethod = "openroute";
+            console.log("✅ Ruta calculada con OpenRouteService");
+          } catch (apiError) {
+            console.warn("⚠️ OpenRouteService falló:", apiError.message);
+            
+            // Último recurso: ruta directa
+            const useDirectRoute = confirm(
+              `No se pudo calcular una ruta por caminos peatonales.\n\n` +
+              `¿Deseas ver una ruta directa (línea recta) hacia ${buildingName}?`
             );
+            
+            if (useDirectRoute) {
+              result = createDirectRoute(currentUserLocation, building);
+              routeMethod = "directa";
+              console.log("📍 Usando ruta directa");
+            } else {
+              throw new Error("No se pudo calcular ninguna ruta");
+            }
           }
         }
       } else {
-        // Si no hay nodos cargados, usar OpenRouteService directamente
-        console.log(
-          "⚠️ Red de nodos no disponible, usando OpenRouteService..."
-        );
+        // Si no hay nodos, intentar OpenRouteService directamente
+        console.log("⚠️ Sistema de nodos no disponible");
         try {
           result = await calculateWithOpenRouteService(
             currentUserLocation,
             building
           );
-          console.log("⚠️ Usando OpenRouteService (nodos no disponibles)");
-        } catch (openRouteError) {
-          throw new Error(
-            `Red de nodos no disponible y OpenRouteService falló: ${openRouteError.message}`
+          routeMethod = "openroute";
+        } catch (apiError) {
+          // Ofrecer ruta directa
+          const useDirectRoute = confirm(
+            `No se pudo calcular una ruta por caminos.\n\n` +
+            `¿Deseas ver una ruta directa hacia ${buildingName}?`
           );
+          
+          if (useDirectRoute) {
+            result = createDirectRoute(currentUserLocation, building);
+            routeMethod = "directa";
+          } else {
+            throw new Error("No se pudo calcular ninguna ruta");
+          }
         }
       }
 
@@ -707,15 +762,10 @@ const OpenStreetMapComponent = ({
         `⏱️ Tiempo estimado: ${result.duration}\n` +
         `🚶‍♂️ Modo: Caminando\n` +
         `📍 Origen: Tu ubicación (GPS)\n` +
-        `🌐 Fuente: ${result.source}\n` +
-        (result.note ? `📝 ${result.note}\n` : "") +
-        (result.details
-          ? `🔍 Detalles: ${(result.details.accessDistance / 1000).toFixed(
-            2
-          )}km acceso + ${(result.details.routeDistance / 1000).toFixed(
-            2
-          )}km ruta`
-          : "");
+        `🌐 Método: ${routeMethod === 'nodos' ? 'Red de caminos del campus' : 
+                      routeMethod === 'openroute' ? 'OpenRouteService' : 
+                      'Ruta directa'}\n` +
+        (result.note ? `\n${result.note}` : "");
 
       alert(routeInfo);
 
@@ -727,7 +777,8 @@ const OpenStreetMapComponent = ({
       }, 3000);
     } catch (err) {
       setSelectedBuilding(null);
-      throw new Error(`Error calculando la ruta: ${err.message}`);
+      console.error("❌ Error final:", err);
+      alert(`Error: ${err.message}`);
     }
   };
 
