@@ -1,10 +1,9 @@
-// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Completo con sistema de nodos
+// components/OpenStreetMapComponent/OpenStreetMapComponent.jsx - Sin ubicación manual
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./OpenStreetMapComponent.css";
 import StaffModal from "../StaffModal/StaffModal";
-import ManualLocationModal from "../ManualLocationModal/ManualLocationModal";
 
 // IMPORTAR SISTEMA DE NODOS (ÚNICO para cálculo de rutas)
 import {
@@ -35,10 +34,7 @@ import {
 import MackersImage from "../../assets/Macker_1.png";
 
 const OpenStreetMapComponent = ({
-  selectedBuildingFromSearch,
-  showManualLocationModal,
-  onManualLocationModalClose,
-  onCloseModal,
+  selectedBuildingFromSearch
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -47,6 +43,10 @@ const OpenStreetMapComponent = ({
   const buildingMarkersRef = useRef([]);
   const watchIdRef = useRef(null);
   const currentRouteRef = useRef(null);
+  
+  // Referencias para mantener estado actualizado
+  const userLocationRef = useRef(null);
+  const isTrackingRef = useRef(false);
 
   // Estados principales
   const [userLocation, setUserLocation] = useState(null);
@@ -172,8 +172,8 @@ const OpenStreetMapComponent = ({
               <br>
               <button onclick="navigator.clipboard.writeText('${lat.toFixed(
               6
-            )}, ${lng.toFixed(6)}'); this.textContent='¡Copiado!'" 
-                      style="margin-top: 5px; padding: 4px 8px; background: #1976d2; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">
+            )}, ${lng.toFixed(6)}'); this.textContent='¡Copiado!'"
+                style="margin-top: 5px; padding: 4px 8px; background: #1976d2; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">
                 Copiar coordenadas
               </button>
             </div>
@@ -290,18 +290,30 @@ const OpenStreetMapComponent = ({
         (b) => String(b.id) === String(buildingId)
       );
       if (building) {
-        await handleGetDirections(building);
+        // Usar una referencia para obtener el estado actual
+        const currentLocation = userLocationRef.current;
+        const currentTracking = isTrackingRef.current;
+        
+        console.log("🔍 getDirectionsOSM - ubicación actual:", currentLocation);
+        console.log("🚀 getDirectionsOSM - tracking actual:", currentTracking);
+        
+        if (!currentLocation) {
+          alert(
+            "No se ha establecido tu ubicación. Por favor, activa el GPS usando el botón 'Iniciar GPS' en el header."
+          );
+          return;
+        }
+        
+        try {
+          await calculateRouteToBuilding(building, currentLocation);
+        } catch (err) {
+          alert(err.message);
+        }
       }
     };
 
     window.handleLocationUpdate = (location) => {
       handleLocationUpdate(location);
-    };
-
-    window.openManualLocationModal = () => {
-      if (onManualLocationModalClose) {
-        onManualLocationModalClose();
-      }
     };
 
     window.openImageModal = function (imageUrl) {
@@ -351,63 +363,11 @@ const OpenStreetMapComponent = ({
       delete window.openStaffModalById;
       delete window.getDirectionsOSM;
       delete window.handleLocationUpdate;
-      delete window.openManualLocationModal;
       delete window.openImageModal;
       delete window.closeImageModal;
       delete window.toggleDebugNodes;
     };
-  }, [buildingsData, onManualLocationModalClose]);
-
-  // Manejar ubicación manual
-  const handleManualLocationSet = async (location) => {
-    console.log("📍 Ubicación manual establecida:", location);
-
-    // Detener tracking GPS si está activo
-    if (isTracking && watchIdRef.current) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-      setIsTracking(false);
-    }
-
-    // Establecer la nueva ubicación
-    handleLocationUpdate(location);
-
-    // Centrar el mapa en la nueva ubicación
-    if (mapInstance.current) {
-      mapInstance.current.setView([location.lat, location.lng], 18);
-    }
-
-    // Mostrar mensaje de confirmación
-    setError(null);
-    const tempMessage = `✅ Ubicación manual establecida: ${location.lat.toFixed(
-      6
-    )}, ${location.lng.toFixed(6)}`;
-    setError(tempMessage);
-
-    // Si hay un edificio seleccionado pendiente, calcular la ruta automáticamente
-    if (selectedBuilding) {
-      console.log(
-        "🗺️ Calculando ruta automáticamente para:",
-        selectedBuilding.name
-      );
-
-      setTimeout(async () => {
-        try {
-          await calculateRouteToBuilding(selectedBuilding, location);
-        } catch (error) {
-          console.error("Error calculando ruta automática:", error);
-          setError(`Error calculando ruta: ${error.message}`);
-        }
-      }, 1000);
-    }
-
-    // Limpiar mensaje después de 3 segundos
-    setTimeout(() => {
-      if (!selectedBuilding) {
-        setError(null);
-      }
-    }, 3000);
-  };
+  }, [buildingsData, userLocation, isTracking]); // Agregar dependencias
 
   // FUNCIÓN: Crear ruta usando el sistema de nodos (ÚNICA OPCIÓN para rutas)
   const createRouteFromNodes = async (
@@ -560,7 +520,9 @@ const OpenStreetMapComponent = ({
 
   // Manejar actualización de ubicación
   const handleLocationUpdate = (location) => {
+    console.log("📍 handleLocationUpdate llamado con:", location);
     setUserLocation(location);
+    userLocationRef.current = location; // Mantener ref actualizada
 
     if (mapInstance.current) {
       if (userMarkerRef.current) {
@@ -584,6 +546,8 @@ const OpenStreetMapComponent = ({
           location.accuracy
         );
       }
+      
+      console.log("✅ Marcador de usuario actualizado en el mapa");
     }
   };
 
@@ -595,6 +559,9 @@ const OpenStreetMapComponent = ({
         watchIdRef.current = null;
       }
       setIsTracking(false);
+      isTrackingRef.current = false; // Mantener ref actualizada
+      setError("GPS detenido");
+      setTimeout(() => setError(null), 2000);
     } else {
       setError(null);
 
@@ -621,13 +588,17 @@ const OpenStreetMapComponent = ({
           );
         });
 
+        // Guardar la ubicación inmediatamente
         handleLocationUpdate(location);
+        console.log("📍 Ubicación GPS obtenida:", location);
 
+        // Centrar mapa en la ubicación
         if (mapInstance.current) {
-          mapInstance.current.setView([location.lat, location.lng], 19);
+          mapInstance.current.setView([location.lat, location.lng], 18);
         }
 
-        const watchId = navigator.geolocation.watchPosition(
+        // Iniciar el seguimiento continuo
+        watchIdRef.current = navigator.geolocation.watchPosition(
           (position) => {
             const newLocation = {
               lat: position.coords.latitude,
@@ -636,63 +607,47 @@ const OpenStreetMapComponent = ({
               timestamp: position.timestamp,
             };
             handleLocationUpdate(newLocation);
+            console.log("📍 Ubicación actualizada:", newLocation);
           },
           (error) => {
             console.error("Error en seguimiento:", error);
+            setError("Error en seguimiento GPS");
+            setTimeout(() => setError(null), 3000);
           },
           LOCATION_OPTIONS
         );
 
-        watchIdRef.current = watchId;
         setIsTracking(true);
+        isTrackingRef.current = true; // Mantener ref actualizada
+        setError("✅ GPS activado exitosamente");
+        setTimeout(() => setError(null), 3000);
       } catch (err) {
-        setError(`Error al iniciar seguimiento: ${err.message}`);
+        setError(err.message);
+        setTimeout(() => setError(null), 5000);
       }
     }
   };
 
-  // FUNCIÓN PRINCIPAL: Calcular ruta SOLO con red de nodos
+  // Calcular y mostrar ruta
   const calculateRouteToBuilding = async (building, currentUserLocation) => {
     const buildingName = building.name || `Edificio ${building.id}`;
 
     try {
-      // Limpiar rutas anteriores
       if (currentRouteRef.current) {
         mapInstance.current.removeLayer(currentRouteRef.current);
+        currentRouteRef.current = null;
       }
-
-      mapInstance.current.eachLayer((layer) => {
-        if (
-          layer instanceof L.Polyline &&
-          layer.options.color === "#4285F4" && // Solo eliminar rutas azules
-          layer !== routeManager.routeLayer
-        ) {
-          // Mantener las rutas predefinidas
-          mapInstance.current.removeLayer(layer);
-        }
-      });
 
       let result;
 
-      // 🎯 ÚNICO SISTEMA: Red de nodos
-      if (nodesLoaded && nodeManager.nodes.size > 0) {
-        console.log("🎯 Calculando ruta con red de nodos...");
-
-        // DEBUG: Información del edificio
-        if (building.id) {
-          nodeManager.debugBuildingInfo(
-            building.id,
-            building.position.lat,
-            building.position.lng
-          );
-        }
-
+      // Usar sistema de nodos SOLO si está disponible y funcionando
+      if (nodesLoaded) {
+        console.log("🎯 Usando sistema de nodos para calcular ruta...");
         try {
-          const nodeRoute = nodeManager.calculateRoute(
-            currentUserLocation.lat,
-            currentUserLocation.lng,
-            building.position.lat,
-            building.position.lng
+          const nodeRoute = await nodeManager.calculateRoute(
+            [currentUserLocation.lat, currentUserLocation.lng],
+            [building.position.lat, building.position.lng],
+            200
           );
 
           if (nodeRoute) {
@@ -701,10 +656,10 @@ const OpenStreetMapComponent = ({
               currentUserLocation,
               building
             );
-            console.log("✅ Ruta calculada con red de nodos");
+            console.log("✅ Ruta calculada con sistema de nodos");
           } else {
             throw new Error(
-              "No se encontró ruta válida en la red de nodos. Verifica que el edificio esté conectado a la red."
+              "No se pudo calcular una ruta a través de la red de nodos. Verifica que el edificio esté conectado a la red."
             );
           }
         } catch (nodeError) {
@@ -746,15 +701,12 @@ const OpenStreetMapComponent = ({
       currentRouteRef.current = result.routeLine;
 
       // Mostrar información de la ruta
-      const locationSource = currentUserLocation.manual
-        ? " (ubicación manual)"
-        : " (GPS)";
       const routeInfo =
         `🎯 Ruta a ${buildingName}\n\n` +
         `📏 Distancia: ${result.distance}\n` +
         `⏱️ Tiempo estimado: ${result.duration}\n` +
         `🚶‍♂️ Modo: Caminando\n` +
-        `📍 Origen: Tu ubicación${locationSource}\n` +
+        `📍 Origen: Tu ubicación (GPS)\n` +
         `🌐 Fuente: ${result.source}\n` +
         (result.note ? `📝 ${result.note}\n` : "") +
         (result.details
@@ -782,53 +734,25 @@ const OpenStreetMapComponent = ({
   // Manejar direcciones
   const handleGetDirections = async (building) => {
     const buildingName = building.name || `Edificio ${building.id}`;
+    console.log("🔍 handleGetDirections llamado para:", buildingName);
+    console.log("📍 Estado actual de userLocation:", userLocation);
+    console.log("🚀 Estado de tracking:", isTracking);
 
     let currentUserLocation = userLocation;
 
     if (!currentUserLocation) {
-      const useManual = confirm(
-        "No se ha establecido tu ubicación. ¿Quieres usar la ubicación manual para calcular la ruta?"
+      console.warn("⚠️ No hay ubicación de usuario disponible");
+      alert(
+        "No se ha establecido tu ubicación. Por favor, activa el GPS usando el botón 'Iniciar GPS' en el header."
       );
-
-      if (useManual) {
-        setSelectedBuilding(building);
-        onManualLocationModalClose();
-        return;
-      }
-
-      try {
-        currentUserLocation = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                accuracy: position.coords.accuracy,
-                timestamp: position.timestamp,
-              };
-              resolve(location);
-            },
-            (error) => reject(error),
-            {
-              enableHighAccuracy: false,
-              timeout: 5000,
-              maximumAge: 60000,
-            }
-          );
-        });
-
-        handleLocationUpdate(currentUserLocation);
-      } catch (err) {
-        alert(
-          "No se pudo obtener tu ubicación para calcular la ruta. Usa 'Ubicación Manual' en el header."
-        );
-        return;
-      }
+      return;
     }
 
     try {
+      console.log("✅ Ubicación disponible, calculando ruta...");
       await calculateRouteToBuilding(building, currentUserLocation);
     } catch (err) {
+      console.error("❌ Error al calcular ruta:", err);
       alert(err.message);
     }
   };
@@ -848,48 +772,48 @@ const OpenStreetMapComponent = ({
 
   // UseEffect para enfocar edificio desde el buscador
   useEffect(() => {
-  if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
-    console.log("Selected building from search:", selectedBuildingFromSearch);
-    console.log("Markers available:", buildingMarkersRef.current.length);
+    if (selectedBuildingFromSearch && mapInstance.current && markersReady) {
+      console.log("Selected building from search:", selectedBuildingFromSearch);
+      console.log("Markers available:", buildingMarkersRef.current.length);
 
-    const { lat, lng } = selectedBuildingFromSearch.position;
+      const { lat, lng } = selectedBuildingFromSearch.position;
 
-    // Buscar el marcador correspondiente primero
-    const marker = buildingMarkersRef.current.find(
-      (m) => m.buildingId === selectedBuildingFromSearch.id
-    );
-
-    if (marker) {
-      console.log(
-        "Found marker, opening popup for:",
-        selectedBuildingFromSearch.name
+      // Buscar el marcador correspondiente primero
+      const marker = buildingMarkersRef.current.find(
+        (m) => m.buildingId === selectedBuildingFromSearch.id
       );
 
-      // Centrar el mapa en el edificio
-      mapInstance.current.setView([lat, lng], 18);
+      if (marker) {
+        console.log(
+          "Found marker, opening popup for:",
+          selectedBuildingFromSearch.name
+        );
 
-      // Esperar a que el mapa se centre y luego abrir el popup
-      setTimeout(() => {
-        try {
-          marker.openPopup();
-          setSelectedBuilding(selectedBuildingFromSearch);
-          console.log("Popup opened successfully");
-        } catch (error) {
-          console.error("Error abriendo popup:", error);
-        }
-      }, 500);
-    } else {
-      console.warn(
-        "Marker not found for building:",
-        selectedBuildingFromSearch
-      );
-      console.log(
-        "Available marker IDs:",
-        buildingMarkersRef.current.map((m) => m.buildingId)
-      );
+        // Centrar el mapa en el edificio
+        mapInstance.current.setView([lat, lng], 18);
+
+        // Esperar a que el mapa se centre y luego abrir el popup
+        setTimeout(() => {
+          try {
+            marker.openPopup();
+            setSelectedBuilding(selectedBuildingFromSearch);
+            console.log("Popup opened successfully");
+          } catch (error) {
+            console.error("Error abriendo popup:", error);
+          }
+        }, 500);
+      } else {
+        console.warn(
+          "Marker not found for building:",
+          selectedBuildingFromSearch
+        );
+        console.log(
+          "Available marker IDs:",
+          buildingMarkersRef.current.map((m) => m.buildingId)
+        );
+      }
     }
-  }
-}, [selectedBuildingFromSearch?.searchTimestamp, markersReady]);
+  }, [selectedBuildingFromSearch?.searchTimestamp, markersReady]);
 
   return (
     <div className="openstreetmap-container">
@@ -920,52 +844,34 @@ const OpenStreetMapComponent = ({
             transform: "translateX(-50%)",
             background: error.includes("✅") ? "#e8f5e8" : "#ffebee",
             border: `1px solid ${error.includes("✅") ? "#4caf50" : "#f44336"}`,
-            borderRadius: "4px",
-            padding: "12px 20px",
             color: error.includes("✅") ? "#2e7d32" : "#c62828",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            zIndex: 1000,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-            maxWidth: "80%",
+            padding: "10px 20px",
+            borderRadius: "4px",
+            zIndex: 1001,
+            maxWidth: "90%",
+            textAlign: "center",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
           }}
         >
-          <span>{error}</span>
-          <button
-            onClick={() => setError(null)}
-            style={{
-              background: "transparent",
-              border: "none",
-              fontSize: "18px",
-              cursor: "pointer",
-              color: error.includes("✅") ? "#2e7d32" : "#c62828",
-              padding: "0",
-              lineHeight: "1",
-            }}
-          >
-            ×
-          </button>
+          {error}
         </div>
       )}
 
-      {/* Mapa */}
-      <div ref={mapRef} className="map-container" style={{ height: "100%" }} />
+      {/* Map Container */}
+      <div
+        ref={mapRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+        }}
+      />
 
-      {/* StaffModal */}
+      {/* Staff Modal */}
       <StaffModal
         isOpen={staffModalOpen}
         onClose={() => setStaffModalOpen(false)}
-        staff={staffModalBuilding?.staff || []}
-        buildingName={staffModalBuilding?.name || ""}
-      />
-
-      {/* ManualLocationModal */}
-      <ManualLocationModal
-        isOpen={showManualLocationModal}
-        onClose={onCloseModal || onManualLocationModalClose}
-        onLocationSet={handleManualLocationSet}
-        currentLocation={userLocation}
+        building={staffModalBuilding}
       />
     </div>
   );

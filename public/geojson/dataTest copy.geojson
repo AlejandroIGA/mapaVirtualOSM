@@ -1153,7 +1153,8 @@
           20.65372753516489
         ],
         "type": "Point"
-      }
+      },
+      "id": 87
     },
     {
       "type": "Feature",
@@ -1246,6 +1247,20 @@
         ],
         "type": "Point"
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "interseccion_auxiliar_?"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40485442927472,
+          20.653720275870512
+        ],
+        "type": "Point"
+      },
+      "id": 95
     }
   ]
 }
