@@ -786,10 +786,16 @@ const OpenStreetMapComponent = ({
   const handleGetDirections = async (building) => {
     const buildingName = building.name || `Edificio ${building.id}`;
     console.log("🔍 handleGetDirections llamado para:", buildingName);
-    console.log("📍 Estado actual de userLocation:", userLocation);
-    console.log("🚀 Estado de tracking:", isTracking);
+    console.log("📍 Estado actual de userLocation:", userLocationRef.current);
+    console.log("🚀 Estado de tracking:", isTrackingRef.current);
 
-    let currentUserLocation = userLocation;
+    // Activar temporalmente los nodos de debug para ver la red
+    if (window.toggleDebugNodes && !showDebugNodes) {
+      console.log("🔍 Activando visualización de nodos para debug...");
+      window.toggleDebugNodes();
+    }
+
+    let currentUserLocation = userLocationRef.current || userLocation;
 
     if (!currentUserLocation) {
       console.warn("⚠️ No hay ubicación de usuario disponible");
