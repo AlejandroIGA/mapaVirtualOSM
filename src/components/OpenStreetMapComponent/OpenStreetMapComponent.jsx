@@ -928,7 +928,8 @@ const OpenStreetMapComponent = ({
       <StaffModal
         isOpen={staffModalOpen}
         onClose={() => setStaffModalOpen(false)}
-        building={staffModalBuilding}
+        staff={staffModalBuilding?.staff || []}
+        buildingName={staffModalBuilding?.name || ""}
       />
     </div>
   );
