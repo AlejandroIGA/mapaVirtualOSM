@@ -99,8 +99,8 @@ export const fetchAllStaff = async () => {
 
 // 🗺️ Configuración del mapa para Leaflet + OSM
 export const MAP_CONFIG = {
-  center: [20.572976640827633, -100.419786585765], // [lat, lng] para Leaflet
-  zoom: 18,
+  center: [20.656200261714417, -100.40449027864963], // [lat, lng] para Leaflet
+  zoom: 17,
   minZoom: 10,
   maxZoom: 19
 };
