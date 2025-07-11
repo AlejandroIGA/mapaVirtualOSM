@@ -34,13 +34,12 @@ export class NodeNetworkManager {
                 });
             });
 
-            console.log(`✅ Red de nodos cargada: ${this.nodes.size} nodos`);
+            console.log(`Red de nodos cargada`);
             this.logNetworkStats();
             return true;
 
         } catch (error) {
-            console.error('❌ Error cargando red de nodos:', error);
-            throw error;
+            console.error('Error cargando red de nodos');
         }
     }
 
@@ -50,8 +49,6 @@ export class NodeNetworkManager {
     findNearestNode(lat, lng, maxDistance = 200) {
         let nearestNode = null;
         let minDistance = maxDistance;
-
-        console.log(`🔍 Buscando nodo más cercano a [${lat}, ${lng}] dentro de ${maxDistance}m...`);
 
         for (const [nodeId, node] of this.nodes) {
             const distance = this.calculateDistance(lat, lng, node.lat, node.lng);
@@ -66,9 +63,9 @@ export class NodeNetworkManager {
         }
 
         if (nearestNode) {
-            console.log(`✅ Nodo más cercano encontrado: ${nearestNode.name} a ${nearestNode.distance.toFixed(1)}m`);
+            console.log(`Nodo más cercano encontrado`);
         } else {
-            console.log(`❌ No se encontró ningún nodo dentro de ${maxDistance}m`);
+            console.log(`No se encontró ningún nodo`);
             // Buscar el nodo más cercano sin límite de distancia para debugging
             let closestNode = null;
             let closestDistance = Infinity;
@@ -78,9 +75,6 @@ export class NodeNetworkManager {
                     closestDistance = distance;
                     closestNode = { ...node, distance };
                 }
-            }
-            if (closestNode) {
-                console.log(`🔍 DEBUG: El nodo más cercano (sin límite) es ${closestNode.name} a ${closestNode.distance.toFixed(1)}m`);
             }
         }
 
@@ -121,7 +115,6 @@ export class NodeNetworkManager {
      * Calcular ruta usando algoritmo de Dijkstra
      */
     calculateRoute(startLat, startLng, endLat, endLng, buildingId = null) {
-        console.log(`🧮 Calculando ruta de nodos: [${startLat}, ${startLng}] → [${endLat}, ${endLng}]`);
 
         // Encontrar nodo de inicio
         const startNode = this.findNearestNode(startLat, startLng, 300);
@@ -145,12 +138,9 @@ export class NodeNetworkManager {
             throw new Error('No se encontró nodo de destino cercano');
         }
 
-        console.log(`📍 Nodos seleccionados: ${startNode.name} → ${endNode.name}`);
-        console.log(`📏 Distancias de acceso: ${startNode.distance.toFixed(1)}m → ${endNode.distance.toFixed(1)}m`);
 
         // Si es el mismo nodo, crear ruta directa
         if (startNode.id === endNode.id) {
-            console.log(`ℹ️ Mismo nodo de origen y destino: ${startNode.name}`);
             return this.createDirectRoute(startLat, startLng, endLat, endLng, startNode);
         }
 
@@ -421,10 +411,9 @@ export class NodeNetworkManager {
         if (nearestNode) {
             console.log(`🎯 Nodo más cercano: ${nearestNode.name} a ${nearestNode.distance.toFixed(1)}m`);
         } else {
-            console.log(`❌ No hay nodos cercanos dentro de 500m`);
+            console.log(`No hay nodos cercanos dentro de 500m`);
         }
 
-        console.log(`🔍 === FIN DEBUG EDIFICIO ===`);
     }
 
     /**
@@ -441,12 +430,6 @@ export class NodeNetworkManager {
                 acc[type] = (acc[type] || 0) + 1;
                 return acc;
             }, {});
-
-        console.log('📊 Estadísticas de la red:');
-        console.log(`   • Total nodos: ${this.nodes.size}`);
-        console.log(`   • Total conexiones: ${totalConnections}`);
-        console.log(`   • Tipos:`, nodesByType);
-        console.log(`   • Conectividad promedio: ${(totalConnections / this.nodes.size).toFixed(1)} conexiones/nodo`);
     }
 
     /**
@@ -474,14 +457,10 @@ export class NodeNetworkManager {
 
         const connected = visited.size === this.nodes.size;
 
-        console.log(`🔗 Validación de red: ${connected ? 'CONECTADA' : 'DESCONECTADA'}`);
-        console.log(`   • Nodos alcanzables: ${visited.size}/${this.nodes.size}`);
-
         if (!connected) {
             const unreachable = Array.from(this.nodes.keys())
                 .filter(id => !visited.has(id))
                 .map(id => this.nodes.get(id).name);
-            console.log(`   • Nodos no alcanzables:`, unreachable);
         }
 
         return { connected, reachableNodes: visited.size };
@@ -510,7 +489,7 @@ export const initializeNodeNetwork = async () => {
 
         return true;
     } catch (error) {
-        console.error('❌ Error inicializando red de nodos:', error);
+        console.error('Error inicializando red de nodos');
         return false;
     }
 };

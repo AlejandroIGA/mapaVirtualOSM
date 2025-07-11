@@ -28,7 +28,6 @@ export const createUserMarker = (map, position, accuracy) => {
         offset: [0, -10]
     });
 
-    console.log('📍 Marcador de usuario creado');
     return marker;
 };
 
@@ -46,7 +45,6 @@ export const createBuildingMarker = (map, building) => {
         title: building.name
     }).addTo(map);
 
-    console.log(`🏢 Marcador de edificio creado: ${building.name}`);
     return marker;
 };
 
@@ -59,7 +57,6 @@ export const createAccuracyCircle = (map, position, accuracy) => {
         weight: 2
     }).addTo(map);
 
-    console.log('⭕ Círculo de precisión creado');
     return circle;
 };
 
@@ -101,45 +98,23 @@ export const createBuildingPopupContent = (building) => {
  */
 export const calculateAndShowDirections = async (map, origin, destination, routeManager = null) => {
     try {
-        console.log('\n🚀 ========================================');
-        console.log('🚀 === INICIANDO CÁLCULO DE RUTA (DEBUG) ===');
-        console.log('🚀 ========================================');
-        console.log(`📍 Origen: [${origin.lat}, ${origin.lng}]`);
-        console.log(`🎯 Destino: [${destination.lat}, ${destination.lng}]`);
-        console.log(`🔧 RouteManager recibido: ${!!routeManager}`);
-
         // 🔍 DIAGNÓSTICO COMPLETO DEL ROUTE MANAGER
         if (routeManager) {
-            console.log('\n🔍 === DIAGNÓSTICO DEL ROUTE MANAGER ===');
-            console.log(`   ✅ RouteManager existe: ${!!routeManager}`);
-            console.log(`   📊 NodeGraph existe: ${!!routeManager.nodeGraph}`);
-            console.log(`   📊 NodeGraph es Map: ${routeManager.nodeGraph instanceof Map}`);
-            console.log(`   📊 Tamaño NodeGraph: ${routeManager.nodeGraph?.size || 0}`);
-            console.log(`   📍 NodePositions existe: ${!!routeManager.nodePositions}`);
-            console.log(`   📍 Tamaño NodePositions: ${routeManager.nodePositions?.size || 0}`);
-            console.log(`   📏 RouteSegments existe: ${!!routeManager.routeSegments}`);
-            console.log(`   📏 Cantidad RouteSegments: ${routeManager.routeSegments?.length || 0}`);
-            console.log(`   🔧 Función calculateCustomRoute: ${typeof routeManager.calculateCustomRoute}`);
-            console.log(`   🔧 Función getTotalConnections: ${typeof routeManager.getTotalConnections}`);
-
             // Verificar que las funciones críticas existan
             const criticalFunctions = ['calculateCustomRoute', 'nodeGraph', 'nodePositions'];
             const missingFunctions = criticalFunctions.filter(func => !routeManager[func]);
 
             if (missingFunctions.length > 0) {
-                console.log(`   ❌ FUNCIONES FALTANTES: ${missingFunctions.join(', ')}`);
+                console.log(`FUNCIONES FALTANTES`);
             } else {
-                console.log(`   ✅ Todas las funciones críticas están presentes`);
+                console.log(`Todas las funciones críticas están presentes`);
             }
 
             // Verificar estado interno detallado
             if (routeManager.nodeGraph && routeManager.nodeGraph.size > 0) {
-                console.log('\n📊 === ESTADO DETALLADO DEL GRAFO ===');
-                console.log(`   🔗 Total conexiones: ${routeManager.getTotalConnections?.() || 'N/A'}`);
 
                 // Mostrar algunos nodos de ejemplo
                 const sampleNodes = Array.from(routeManager.nodePositions?.keys() || []).slice(0, 3);
-                console.log(`   📍 Nodos de ejemplo (primeros 3):`);
                 sampleNodes.forEach(nodeId => {
                     const position = routeManager.nodePositions.get(nodeId);
                     const connections = routeManager.nodeGraph.get(nodeId);
@@ -147,7 +122,6 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                 });
 
                 // Verificar área de cobertura
-                console.log('\n📐 === VERIFICANDO COBERTURA DEL GRAFO ===');
                 const allPositions = Array.from(routeManager.nodePositions.values());
                 const lats = allPositions.map(p => p.lat);
                 const lngs = allPositions.map(p => p.lng);
@@ -159,36 +133,22 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                     maxLng: Math.max(...lngs)
                 };
 
-                console.log(`   📊 Límites del grafo:`);
-                console.log(`     Latitud: ${bounds.minLat.toFixed(6)} a ${bounds.maxLat.toFixed(6)}`);
-                console.log(`     Longitud: ${bounds.minLng.toFixed(6)} a ${bounds.maxLng.toFixed(6)}`);
-
                 // Verificar si origen y destino están dentro del área
                 const originInBounds = origin.lat >= bounds.minLat && origin.lat <= bounds.maxLat &&
                     origin.lng >= bounds.minLng && origin.lng <= bounds.maxLng;
                 const destInBounds = destination.lat >= bounds.minLat && destination.lat <= bounds.maxLat &&
                     destination.lng >= bounds.minLng && destination.lng <= bounds.maxLng;
 
-                console.log(`   📍 Origen dentro del área: ${originInBounds ? '✅' : '❌'}`);
-                console.log(`   🎯 Destino dentro del área: ${destInBounds ? '✅' : '❌'}`);
-
                 if (!originInBounds) {
                     console.log(`   ⚠️ ORIGEN FUERA DEL ÁREA DEL GRAFO`);
-                    console.log(`     Origen: [${origin.lat}, ${origin.lng}]`);
-                    console.log(`     Diferencia lat: ${Math.min(Math.abs(origin.lat - bounds.minLat), Math.abs(origin.lat - bounds.maxLat)).toFixed(6)}`);
-                    console.log(`     Diferencia lng: ${Math.min(Math.abs(origin.lng - bounds.minLng), Math.abs(origin.lng - bounds.maxLng)).toFixed(6)}`);
                 }
 
                 if (!destInBounds) {
                     console.log(`   ⚠️ DESTINO FUERA DEL ÁREA DEL GRAFO`);
-                    console.log(`     Destino: [${destination.lat}, ${destination.lng}]`);
-                    console.log(`     Diferencia lat: ${Math.min(Math.abs(destination.lat - bounds.minLat), Math.abs(destination.lat - bounds.maxLat)).toFixed(6)}`);
-                    console.log(`     Diferencia lng: ${Math.min(Math.abs(destination.lng - bounds.minLng), Math.abs(destination.lng - bounds.maxLng)).toFixed(6)}`);
                 }
             }
         } else {
-            console.log('\n❌ === ROUTE MANAGER NO DISPONIBLE ===');
-            console.log('   RouteManager es null o undefined');
+            console.log('=== ROUTE MANAGER NO DISPONIBLE ===');
         }
 
         // 🎯 PRIORIDAD 1: INTENTAR RUTAS GEOJSON CON PESOS
@@ -198,14 +158,7 @@ export const calculateAndShowDirections = async (map, origin, destination, route
             routeManager.nodeGraph.size > 0 &&
             typeof routeManager.calculateCustomRoute === 'function') {
 
-            console.log('\n🏃‍♂️ === INTENTANDO SISTEMA DE PESOS GEOJSON ===');
-            console.log(`📊 Condiciones verificadas:`);
-            console.log(`   ✅ RouteManager existe`);
-            console.log(`   ✅ NodeGraph es Map válido con ${routeManager.nodeGraph.size} nodos`);
-            console.log(`   ✅ Función calculateCustomRoute disponible`);
-
             try {
-                console.log('\n🔄 Llamando a routeManager.calculateCustomRoute...');
                 const customRoute = routeManager.calculateCustomRoute(
                     origin.lat,
                     origin.lng,
@@ -213,18 +166,10 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                     destination.lng
                 );
 
-                console.log(`\n📋 Resultado de calculateCustomRoute:`);
-                console.log(`   Resultado: ${customRoute ? 'OBJETO VÁLIDO' : 'NULL/UNDEFINED'}`);
 
                 if (customRoute) {
-                    console.log(`   ✅ CustomRoute recibido:`);
-                    console.log(`     - Coordinates: ${customRoute.coordinates ? customRoute.coordinates.length + ' puntos' : 'No disponible'}`);
-                    console.log(`     - Distance: ${customRoute.distance || 'No disponible'}`);
-                    console.log(`     - Path: ${customRoute.path ? customRoute.path.length + ' nodos' : 'No disponible'}`);
-                    console.log(`     - SegmentsUsed: ${customRoute.segmentsUsed ? customRoute.segmentsUsed.length + ' segmentos' : 'No disponible'}`);
-
                     if (customRoute.coordinates && customRoute.coordinates.length > 0) {
-                        console.log('\n🎨 === CREANDO RUTA VISUAL ===');
+                        console.log('=== CREANDO RUTA VISUAL ===');
 
                         // Crear la ruta visual en el mapa
                         const routeLine = L.polyline(customRoute.coordinates, {
@@ -242,11 +187,6 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                         const distanceKm = (customRoute.distance / 1000).toFixed(2);
                         const durationMin = Math.round(customRoute.distance / 1000 * 12); // ~12 min por km caminando
 
-                        console.log('✅ === ÉXITO: RUTA GEOJSON CREADA ===');
-                        console.log(`   📏 Distancia: ${distanceKm} km`);
-                        console.log(`   ⏱️ Duración: ${durationMin} min`);
-                        console.log(`   🎨 Ruta dibujada en azul sólido`);
-
                         return {
                             distance: `${distanceKm} km`,
                             duration: `${durationMin} min`,
@@ -256,38 +196,28 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                             routeType: 'weighted_geojson'
                         };
                     } else {
-                        console.log('❌ CustomRoute sin coordenadas válidas');
+                        console.log('Error obtención coordenadas');
                     }
                 } else {
-                    console.log('❌ calculateCustomRoute devolvió null/undefined');
+                    console.log('Error obtención de valor');
                 }
             } catch (error) {
-                console.error('❌ Error ejecutando calculateCustomRoute:', error);
-                console.error('Stack trace:', error.stack);
+                console.error('error');
             }
         } else {
-            console.log('\n❌ === SISTEMA DE PESOS NO DISPONIBLE ===');
-            console.log('   Razones posibles:');
-            console.log(`   - RouteManager: ${!!routeManager ? '✅' : '❌'}`);
-            console.log(`   - NodeGraph: ${!!(routeManager?.nodeGraph) ? '✅' : '❌'}`);
-            console.log(`   - NodeGraph es Map: ${routeManager?.nodeGraph instanceof Map ? '✅' : '❌'}`);
-            console.log(`   - NodeGraph no vacío: ${(routeManager?.nodeGraph?.size || 0) > 0 ? '✅' : '❌'}`);
-            console.log(`   - Función calculateCustomRoute: ${typeof routeManager?.calculateCustomRoute === 'function' ? '✅' : '❌'}`);
+            console.log('=== SISTEMA DE PESOS NO DISPONIBLE ===')
         }
 
         // 🌐 PRIORIDAD 2: OPENROUTESERVICE API
-        console.log('\n🌐 === INTENTANDO OPENROUTESERVICE ===');
 
         try {
             const { OPENROUTE_CONFIG, buildOpenRouteURL } = await import('../data/buildingsData.js');
 
             if (!OPENROUTE_CONFIG.apiKey) {
-                console.warn('⚠️ API key de OpenRouteService no configurada');
                 throw new Error('API key no disponible');
             }
 
             const url = buildOpenRouteURL(origin, destination, 'walking');
-            console.log('🌐 Solicitando ruta a OpenRouteService...');
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -304,7 +234,6 @@ export const calculateAndShowDirections = async (map, origin, destination, route
             const data = await response.json();
 
             if (data.features && data.features[0]) {
-                console.log('✅ === ÉXITO: RUTA OPENROUTESERVICE ===');
 
                 const route = data.features[0];
                 const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
@@ -323,10 +252,6 @@ export const calculateAndShowDirections = async (map, origin, destination, route
                 const distance = (summary.distance / 1000).toFixed(2);
                 const duration = Math.round(summary.duration / 60);
 
-                console.log(`   📏 Distancia: ${distance} km`);
-                console.log(`   ⏱️ Duración: ${duration} min`);
-                console.log(`   🎨 Ruta dibujada en naranja punteado`);
-
                 return {
                     distance: `${distance} km`,
                     duration: `${duration} min`,
@@ -340,24 +265,19 @@ export const calculateAndShowDirections = async (map, origin, destination, route
             }
 
         } catch (apiError) {
-            console.error('❌ Error con OpenRouteService:', apiError);
-            console.log('🔄 Fallback a ruta directa...');
+            console.error('Error con OpenRouteService');
         }
 
         // 📐 PRIORIDAD 3: Ruta directa (último recurso)
-        console.log('\n📐 === CALCULANDO RUTA DIRECTA (ÚLTIMO RECURSO) ===');
         return await calculateDirectRoute(map, origin, destination);
 
     } catch (error) {
-        console.error('❌ Error general en cálculo de ruta:', error);
-        console.error('Stack trace completo:', error.stack);
-        console.log('🔄 Fallback a ruta directa...');
+
         return await calculateDirectRoute(map, origin, destination);
     }
 };
 
 const calculateDirectRoute = async (map, origin, destination) => {
-    console.log('📐 Calculando ruta directa (último recurso)...');
 
     const directDistance = calculateDirectDistance(origin, destination);
     const estimatedTime = Math.round(directDistance * 12); // ~12 min por km caminando
@@ -374,11 +294,6 @@ const calculateDirectRoute = async (map, origin, destination) => {
     }).addTo(map);
 
     map.fitBounds(directLine.getBounds(), { padding: [20, 20] });
-
-    console.log('✅ === RUTA DIRECTA CREADA ===');
-    console.log(`   📏 Distancia: ${directDistance.toFixed(2)} km`);
-    console.log(`   ⏱️ Duración estimada: ${estimatedTime} min`);
-    console.log(`   🎨 Ruta dibujada en rojo muy punteado`);
 
     return {
         distance: `~${directDistance.toFixed(2)} km`,
@@ -454,7 +369,6 @@ export const setupMapDefaults = (mapElement, centerLat, centerLng, zoom = 18) =>
         minZoom: 10
     }).addTo(map);
 
-    console.log('🔧 Mapa OSM configurado con opciones por defecto');
     return map;
 };
 
@@ -470,5 +384,4 @@ export const clearPreviousRoutes = (map) => {
             map.removeLayer(layer);
         }
     });
-    console.log('🧹 Rutas anteriores limpiadas');
 };

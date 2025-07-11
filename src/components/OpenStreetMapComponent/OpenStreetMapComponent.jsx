@@ -115,14 +115,12 @@ const OpenStreetMapComponent = ({
         const routesSuccess = await loadPredefinedRoutes();
         if (routesSuccess) {
           setRoutesLoaded(true);
-          console.log("🎨 Senderos GeoJSON cargados SOLO para visualización");
         }
 
         // Cargar red de nodos para cálculo de rutas (SISTEMA PRINCIPAL)
         const nodesSuccess = await initializeNodeNetwork();
         if (nodesSuccess) {
           setNodesLoaded(true);
-          console.log("🎯 Red de nodos cargada para cálculo de rutas");
         }
 
         if (!nodesSuccess) {
@@ -138,66 +136,6 @@ const OpenStreetMapComponent = ({
     initializeSystems();
   }, []);
 
-  // Agregar event listener para clicks en el mapa (obtener coordenadas)
-  useEffect(() => {
-    if (mapInstance.current) {
-      const handleMapClick = (e) => {
-        const { lat, lng } = e.latlng;
-        console.log(
-          `📍 Coordenadas del clic: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-        );
-
-        // Encontrar nodo más cercano si los nodos están cargados
-        let nearestNodeInfo = "";
-        if (nodesLoaded) {
-          const nearestNode = nodeManager.findNearestNode(lat, lng, 100);
-          if (nearestNode) {
-            nearestNodeInfo = `<br><small style="color: #666;">Nodo más cercano: ${nearestNode.name
-              } (${nearestNode.distance.toFixed(1)}m)</small>`;
-          }
-        }
-
-        // Mostrar popup temporal con las coordenadas
-        const popup = L.popup()
-          .setLatLng([lat, lng])
-          .setContent(
-            `
-            <div style="text-align: center; font-family: sans-serif;">
-              <strong>📍 Coordenadas:</strong><br>
-              <span style="font-size: 12px; color: #666;">
-                Lat: ${lat.toFixed(6)}<br>
-                Lng: ${lng.toFixed(6)}
-              </span>
-              ${nearestNodeInfo}
-              <br>
-              <button onclick="navigator.clipboard.writeText('${lat.toFixed(
-              6
-            )}, ${lng.toFixed(6)}'); this.textContent='¡Copiado!'"
-                style="margin-top: 5px; padding: 4px 8px; background: #1976d2; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">
-                Copiar coordenadas
-              </button>
-            </div>
-          `
-          )
-          .openOn(mapInstance.current);
-
-        // Auto-cerrar el popup después de 4 segundos
-        setTimeout(() => {
-          if (mapInstance.current) {
-            mapInstance.current.closePopup(popup);
-          }
-        }, 4000);
-      };
-
-      mapInstance.current.on("click", handleMapClick);
-
-      return () => {
-        if (mapInstance.current) {
-          mapInstance.current.off("click", handleMapClick);
-        }
-      };
-    }
-  }, [isMapReady, nodesLoaded]);
 
   // Carga de rutas al inicializar
   useEffect(() => {
@@ -280,7 +218,7 @@ const OpenStreetMapComponent = ({
 
         setStaffModalOpen(true);
       } catch (error) {
-        console.error("❌ Error al obtener el personal del edificio:", error);
+        console.error("Error al obtener el personal del edificio");
         alert("Error al obtener el personal del edificio");
       }
     };
@@ -293,9 +231,6 @@ const OpenStreetMapComponent = ({
         // Usar una referencia para obtener el estado actual
         const currentLocation = userLocationRef.current;
         const currentTracking = isTrackingRef.current;
-        
-        console.log("🔍 getDirectionsOSM - ubicación actual:", currentLocation);
-        console.log("🚀 getDirectionsOSM - tracking actual:", currentTracking);
         
         if (!currentLocation) {
           alert(
@@ -375,7 +310,6 @@ const OpenStreetMapComponent = ({
     currentUserLocation,
     building
   ) => {
-    console.log("🎯 Creando ruta usando red de nodos");
 
     const routeLine = L.polyline(nodeRoute.coordinates, {
       color: "#00FF00", // Verde para rutas de nodos
@@ -512,15 +446,10 @@ const OpenStreetMapComponent = ({
 
     // Marcar que los marcadores están listos
     setMarkersReady(true);
-    console.log(
-      "✅ Marcadores de edificios creados:",
-      buildingMarkersRef.current.length
-    );
   };
 
   // Manejar actualización de ubicación
   const handleLocationUpdate = (location) => {
-    console.log("📍 handleLocationUpdate llamado con:", location);
     setUserLocation(location);
     userLocationRef.current = location; // Mantener ref actualizada
 
@@ -545,10 +474,7 @@ const OpenStreetMapComponent = ({
           location,
           location.accuracy
         );
-      }
-      
-      console.log("✅ Marcador de usuario actualizado en el mapa");
-    }
+      }    }
   };
 
   // Toggle tracking
@@ -590,8 +516,6 @@ const OpenStreetMapComponent = ({
 
         // Guardar la ubicación inmediatamente
         handleLocationUpdate(location);
-        console.log("📍 Ubicación GPS obtenida:", location);
-
         // Centrar mapa en la ubicación
         if (mapInstance.current) {
           mapInstance.current.setView([location.lat, location.lng], 18);
@@ -607,7 +531,6 @@ const OpenStreetMapComponent = ({
               timestamp: position.timestamp,
             };
             handleLocationUpdate(newLocation);
-            console.log("📍 Ubicación actualizada:", newLocation);
           },
           (error) => {
             console.error("Error en seguimiento:", error);
@@ -619,7 +542,7 @@ const OpenStreetMapComponent = ({
 
         setIsTracking(true);
         isTrackingRef.current = true; // Mantener ref actualizada
-        setError("✅ GPS activado exitosamente");
+        setError("GPS activado exitosamente");
         setTimeout(() => setError(null), 3000);
       } catch (err) {
         setError(err.message);
@@ -630,7 +553,6 @@ const OpenStreetMapComponent = ({
 
   // FUNCIÓN: Crear ruta directa cuando no hay conexión con nodos
   const createDirectRoute = (currentUserLocation, building) => {
-    console.log("📍 Creando ruta directa (línea recta)");
     
     const start = [currentUserLocation.lat, currentUserLocation.lng];
     const end = [building.position.lat, building.position.lng];
@@ -676,7 +598,6 @@ const OpenStreetMapComponent = ({
 
       // Intentar con sistema de nodos
       if (nodesLoaded && nodeManager.nodes.size > 0) {
-        console.log("🎯 Intentando calcular ruta con sistema de nodos...");
         try {
           // Aumentar el radio de búsqueda para nodos más lejanos
           const nodeRoute = await nodeManager.calculateRoute(
@@ -694,7 +615,6 @@ const OpenStreetMapComponent = ({
               building
             );
             routeMethod = "nodos";
-            console.log("✅ Ruta calculada con sistema de nodos");
           } else {
             throw new Error("No se encontró ruta en la red de nodos");
           }
@@ -703,13 +623,11 @@ const OpenStreetMapComponent = ({
           
           // Intentar con OpenRouteService
           try {
-            console.log("🌐 Intentando con OpenRouteService...");
             result = await calculateWithOpenRouteService(
               currentUserLocation,
               building
             );
             routeMethod = "openroute";
-            console.log("✅ Ruta calculada con OpenRouteService");
           } catch (apiError) {
             console.warn("⚠️ OpenRouteService falló:", apiError.message);
             
@@ -722,7 +640,6 @@ const OpenStreetMapComponent = ({
             if (useDirectRoute) {
               result = createDirectRoute(currentUserLocation, building);
               routeMethod = "directa";
-              console.log("📍 Usando ruta directa");
             } else {
               throw new Error("No se pudo calcular ninguna ruta");
             }
@@ -779,38 +696,6 @@ const OpenStreetMapComponent = ({
       setSelectedBuilding(null);
       console.error("❌ Error final:", err);
       alert(`Error: ${err.message}`);
-    }
-  };
-
-  // Manejar direcciones
-  const handleGetDirections = async (building) => {
-    const buildingName = building.name || `Edificio ${building.id}`;
-    console.log("🔍 handleGetDirections llamado para:", buildingName);
-    console.log("📍 Estado actual de userLocation:", userLocationRef.current);
-    console.log("🚀 Estado de tracking:", isTrackingRef.current);
-
-    // Activar temporalmente los nodos de debug para ver la red
-    if (window.toggleDebugNodes && !showDebugNodes) {
-      console.log("🔍 Activando visualización de nodos para debug...");
-      window.toggleDebugNodes();
-    }
-
-    let currentUserLocation = userLocationRef.current || userLocation;
-
-    if (!currentUserLocation) {
-      console.warn("⚠️ No hay ubicación de usuario disponible");
-      alert(
-        "No se ha establecido tu ubicación. Por favor, activa el GPS usando el botón 'Iniciar GPS' en el header."
-      );
-      return;
-    }
-
-    try {
-      console.log("✅ Ubicación disponible, calculando ruta...");
-      await calculateRouteToBuilding(building, currentUserLocation);
-    } catch (err) {
-      console.error("❌ Error al calcular ruta:", err);
-      alert(err.message);
     }
   };
 
@@ -874,23 +759,6 @@ const OpenStreetMapComponent = ({
 
   return (
     <div className="openstreetmap-container">
-      {/* Debug Panel */}
-      {nodesLoaded && (
-        <div className="debug-panel">
-          <strong>🎯 Sistema de Rutas:</strong>
-          <br />✅ Nodos: {nodeManager.nodes.size}
-          <br />
-          {routesLoaded && "🎨 Senderos: Solo visual"}
-          <br />
-          <button
-            onClick={() => window.toggleDebugNodes && window.toggleDebugNodes()}
-            className={showDebugNodes ? "active" : ""}
-          >
-            {showDebugNodes ? "Ocultar" : "Mostrar"} Nodos
-          </button>
-        </div>
-      )}
-
       {/* Error Display */}
       {error && (
         <div
