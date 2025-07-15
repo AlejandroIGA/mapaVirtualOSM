@@ -271,7 +271,7 @@ const OpenStreetMapComponent = ({
       }
 
       try {
-        const staff = await fetchStaffByBuildingName(building.name);
+        const staff = await fetchStaffByBuildingName(building.id);
 
         setStaffModalBuilding({
           ...building,
