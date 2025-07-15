@@ -4,7 +4,6 @@ import './StaffModal.css';
 
 const StaffModal = ({ isOpen, onClose, staff, buildingName }) => {
   if (!isOpen) return null;
-
   return (
     <div className="modal-overlay">
       <div className="modal-box">

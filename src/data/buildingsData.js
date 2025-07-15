@@ -1,19 +1,7 @@
 // src/data/buildingsData.js
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
-import IntelImg from '../assets/Intel.png';
-import RectoriaImg from '../assets/Rectoria.png';
-import BibliotecaImg from '../assets/Biblioteca.png';
-import PidetImg from '../assets/Pidet.png';
-import AuditorioImg from '../assets/Auditorio.png';
-
-const IMAGE_MAP = {
-  IntelImg,
-  RectoriaImg,
-  BibliotecaImg,
-  PidetImg,
-  AuditorioImg
-};
+import { IMAGE_MAP } from './buildingImages'; // cargar las imagenes
 
 // 🔄 Función para cargar solo edificios (sin personal)
 export const fetchBuildings = async () => {
@@ -52,6 +40,7 @@ export const fetchStaffByBuildingName = async (buildingName) => {
   try {
     // Validar que el nombre del edificio esté definido
     if (typeof buildingName !== 'string' || buildingName.trim() === '') {
+      console.log("a", buildingName);
       console.warn("⚠️ No se puede buscar personal porque el nombre del edificio es inválido:", buildingName);
       return [];
     }
@@ -59,7 +48,7 @@ export const fetchStaffByBuildingName = async (buildingName) => {
     const staffSnapshot = await getDocs(
       query(
         collection(db, 'personal'),
-        where('academic_division', '==', buildingName)
+        where('location', '==', buildingName)
       )
     );
 
