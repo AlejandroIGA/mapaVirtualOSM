@@ -1261,6 +1261,20 @@
         "type": "Point"
       },
       "id": 95
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "camino_laboratorio_i"
+      },
+      "geometry": {
+        "coordinates": [
+          -100.40430244183301,
+          20.654567334156823
+        ],
+        "type": "Point"
+      },
+      "id": 96
     }
   ]
 }
