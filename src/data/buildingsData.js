@@ -35,7 +35,7 @@ export const fetchBuildings = async () => {
   }
 };
 
-// 🔄 Función para obtener personal según el nombre del edificio
+// 🔄 Función para obtener personal según el id del edificio
 export const fetchStaffByBuildingName = async (buildingName) => {
   try {
     // Validar que el nombre del edificio esté definido
@@ -71,12 +71,13 @@ export const fetchAllStaff = async () => {
   try {
     const staffSnapshot = await getDocs(collection(db, 'personal'));
     return staffSnapshot.docs.map(doc => {
-      const { name, role, shift, academic_division } = doc.data();
+      const { name, role, shift, academic_division, location } = doc.data();
       return {
         name,
         position: role,
         shift,
-        buildingName: academic_division
+        buildingName: academic_division,
+        buildingId: location
       };
     });
   } catch (error) {
