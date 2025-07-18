@@ -1,7 +1,7 @@
 // components/SearchBar.jsx
 import { useState, useEffect } from 'react';
 import './SearchBar.css';
-import { fetchBuildings,fetchAllStaff } from '../../data/buildingsData';
+import { fetchBuildings, fetchAllStaff } from '../../data/buildingsData';
 
 
 const normalizeText = (text) =>
@@ -39,35 +39,37 @@ const SearchBar = ({ onSelectBuilding }) => {
   }, [searchType]);
 
   // Filtrar resultados al escribir
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setResults([]);
-      return;
-    }
+useEffect(() => {
+  if (searchTerm.trim() === '') {
+    setResults([]);
+    return;
+  }
 
-    const normalizedTerm = normalizeText(searchTerm);
-    let filteredResults = [];
+  const normalizedTerm = normalizeText(searchTerm);
+  let filteredResults = [];
 
-    if (searchType === 'building') {
-      filteredResults = buildings.filter(building =>
-        normalizeText(building.name).includes(normalizedTerm)
-      );
-    } else if (searchType === 'staff') {
-      staffList.forEach(person => {
-        if (normalizeText(person.name).includes(normalizedTerm)) {
-          const building = buildings.find(b => b.name === person.buildingName);
-          if (building) {
-            filteredResults.push({
-              building,
-              staff: person
-            });
-          }
+  if (searchType === 'building') {
+    filteredResults = buildings.filter(building =>
+      normalizeText(building.name).includes(normalizedTerm)
+    );
+  } else if (searchType === 'staff') {
+    staffList.forEach(person => {
+      if (normalizeText(person.name).includes(normalizedTerm)) {
+        const building = buildings.find(b => b.id === person.buildingId); 
+        if (building) {
+          filteredResults.push({
+            building,
+            staff: person
+          });
         }
-      });
-    }
+      }
+    });
+  }
+  console.log(buildings);
 
-    setResults(filteredResults);
-  }, [searchTerm, buildings, staffList, searchType]);
+  setResults(filteredResults);
+}, [searchTerm, buildings, staffList, searchType]);
+
 
   const handleSuggestionClick = (item) => {
     if (searchType === 'building') {
