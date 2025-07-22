@@ -18,6 +18,7 @@ import DivEcono from '../assets/Division-Economica-Administrativa.png';
 import Entrada from '../assets/Entrada.png';
 import CenTComu from '../assets/Centro-cultural-comunitario.png';
 import CamFut from '../assets/Cancha-de-futbol.jpeg';
+import CamFutRa from '../assets/Cancha-de-futbol-rapido.jpeg'
 import ServEsc from '../assets/Servicios-escolares.jpeg';
 import ServMed from '../assets/Servicio-médico.jpeg';
 import Sanit1 from '../assets/Sanitario 1.jpeg';
@@ -52,6 +53,7 @@ export const IMAGE_MAP = {
   Entrada,
   CenTComu,
   CamFut,
+  CamFutRa,
   ServEsc,
   ServMed,
   AlmaGenTal,
