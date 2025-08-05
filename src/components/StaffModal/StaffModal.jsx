@@ -32,7 +32,8 @@ const StaffModal = ({ isOpen, onClose, staff, buildingName }) => {
                 <li key={index} style={{ marginBottom: '10px' }}>
                   <strong>{person.name}</strong><br />
                   💼 {person.position}<br />
-                  🕒 {person.shift}<br />
+                  📌 {person.shift}<br />
+                  <small><i>🕒 {person.schedule}</i></small><br />
                 </li>
               ))}
             </ul>
@@ -40,11 +41,11 @@ const StaffModal = ({ isOpen, onClose, staff, buildingName }) => {
             {totalPages > 1 && (
               <div className="pagination-controls">
                 <button onClick={handlePrevious} disabled={currentPage === 1}>
-                  ◀️ 
+                  ◀
                 </button>
                 <span>Página {currentPage} de {totalPages}</span>
                 <button onClick={handleNext} disabled={currentPage === totalPages}>
-                  ▶️
+                  ▶
                 </button>
               </div>
             )}
