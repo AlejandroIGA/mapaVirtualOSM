@@ -53,11 +53,12 @@ export const fetchStaffByBuildingName = async (buildingName) => {
     );
 
     return staffSnapshot.docs.map((doc) => {
-      const { name, role, shift } = doc.data();
+      const { name, role, shift, schedule } = doc.data();
       return {
         name,
         position: role,
-        shift
+        shift,
+        schedule
       };
     });
 
@@ -71,11 +72,12 @@ export const fetchAllStaff = async () => {
   try {
     const staffSnapshot = await getDocs(collection(db, 'personal'));
     return staffSnapshot.docs.map(doc => {
-      const { name, role, shift, academic_division, location } = doc.data();
+      const { name, role, shift, academic_division, location, schedule } = doc.data();
       return {
         name,
         position: role,
         shift,
+        schedule,
         buildingName: academic_division,
         buildingId: location
       };
