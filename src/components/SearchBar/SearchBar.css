@@ -75,7 +75,7 @@
   cursor: pointer;
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s;
-  color: #EAB93E;
+  color: #007EAD;
   font-weight: bold;
 }
 
@@ -130,13 +130,13 @@
 }
 
 .search-options label {
-  accent-color: #EAB93E;
+  accent-color: #007EAD;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  border: 2px solid #EAB93E;
+  border: 2px solid #007EAD;
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -158,7 +158,7 @@
 }
 
 .search-options label:hover {
-  background-color: #333;
+  background-color: #007bff;
 }
 
 .search-options input[type="radio"]:checked + label,

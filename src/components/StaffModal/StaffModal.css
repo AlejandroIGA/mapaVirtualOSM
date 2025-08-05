@@ -32,7 +32,7 @@
 .modal-close {
   margin-top: 20px;
   padding: 8px 16px;
-  background: #d32f2f;
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
@@ -43,7 +43,7 @@
 }
 
 .modal-close:hover {
-  background: #b71c1c;
+  background: #0294c9 !important;
 }
 
 .modal-box ul {
@@ -73,5 +73,5 @@
   font-size: 14px;
   cursor: pointer;
   border-radius: 20px;
-  background: #EAB93E;
+  background: #ADB5BD;
 }
