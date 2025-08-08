@@ -369,11 +369,10 @@ const OpenStreetMapComponent = ({
       attributionControl: true,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '© OpenStreetMap contributors © CARTO',
       maxZoom: 19,
-      subdomains: ['a', 'b', 'c'],
-      // Configuración más tolerante
+      subdomains: ['a', 'b', 'c', 'd'],
       maxRetries: 3,
       retryDelay: 1000,
       keepBuffer: 2,
