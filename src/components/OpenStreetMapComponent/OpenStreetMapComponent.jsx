@@ -361,32 +361,33 @@ const OpenStreetMapComponent = ({
   // Inicializar mapa
   useEffect(() => {
     const initializeMap = () => {
-      try {
-        const map = L.map(mapRef.current, {
-          center: MAP_CONFIG.center,
-          zoom: MAP_CONFIG.zoom,
-          zoomControl: true,
-          attributionControl: true,
-        });
+  try {
+    const map = L.map(mapRef.current, {
+      center: MAP_CONFIG.center,
+      zoom: MAP_CONFIG.zoom,
+      zoomControl: true,
+      attributionControl: true,
+    });
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-          minZoom: 10,
-          updateWhenIdle: false,
-          updateWhenZooming: false,
-          keepBuffer: 2,
-        }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors © CARTO',
+      maxZoom: 19,
+      subdomains: ['a', 'b', 'c'],
+      // Configuración más tolerante
+      maxRetries: 3,
+      retryDelay: 1000,
+      keepBuffer: 2,
+      updateWhenIdle: true,
+      updateWhenZooming: false
+    }).addTo(map);
 
-        mapInstance.current = map;
-        setIsMapReady(true);
+    mapInstance.current = map;
+    setIsMapReady(true);
 
-        //createBuildingMarkers(map);
-      } catch (err) {
-        setError(`Error inicializando mapa: ${err.message}`);
-      }
-    };
+  } catch (err) {
+    setError(`Error inicializando mapa: ${err.message}`);
+  }
+};
 
     if (mapRef.current && !mapInstance.current) {
       initializeMap();
